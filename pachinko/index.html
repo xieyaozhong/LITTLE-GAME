@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="bonus.css" />
   <link rel="stylesheet" href="layout-fix.css" />
   <link rel="stylesheet" href="play.css" />
+  <link rel="stylesheet" href="balls.css" />
 </head>
 <body>
   <main class="machine">
@@ -49,6 +50,32 @@
       </div>
     </section>
 
+    <section class="ball-panel" aria-label="彈珠選擇">
+      <div class="ball-panel-head">
+        <div>
+          <span class="ball-panel-title">BALL LAB</span>
+          <strong id="selectedBallName">● 標準彈珠</strong>
+        </div>
+        <small id="selectedBallDesc">平衡型彈珠，可無限使用</small>
+      </div>
+
+      <div class="ball-rack" id="ballRack">
+        <button class="ball-choice active" data-ball="normal" aria-pressed="true"><span class="ball-icon">●</span><b>標準</b><span class="ball-count">∞</span></button>
+        <button class="ball-choice" data-ball="heavy" aria-pressed="false"><span class="ball-icon">⬢</span><b>重力</b><span class="ball-count">×3</span></button>
+        <button class="ball-choice" data-ball="speed" aria-pressed="false"><span class="ball-icon">➤</span><b>疾速</b><span class="ball-count">×3</span></button>
+        <button class="ball-choice" data-ball="lucky" aria-pressed="false"><span class="ball-icon">★</span><b>幸運</b><span class="ball-count">×2</span></button>
+        <button class="ball-choice" data-ball="bomb" aria-pressed="false"><span class="ball-icon">✹</span><b>爆裂</b><span class="ball-count">×1</span></button>
+        <button class="ball-choice" data-ball="ghost" aria-pressed="false"><span class="ball-icon">◇</span><b>幽靈</b><span class="ball-count">×2</span></button>
+        <button class="ball-choice" data-ball="magnet" aria-pressed="false"><span class="ball-icon">⊕</span><b>磁力</b><span class="ball-count">×2</span></button>
+      </div>
+
+      <div class="ball-supply">
+        <span>補給箱</span>
+        <div class="ball-supply-meter"><div id="ballSupplyFill"></div></div>
+        <em id="ballSupplyText">0/12</em>
+      </div>
+    </section>
+
     <section class="bonus-slot" aria-label="柏青哥獎勵老虎機">
       <div class="slot-heading">
         <div>
@@ -75,7 +102,7 @@
 
     <div class="game-wrap">
       <canvas id="game" width="720" height="920"></canvas>
-      <div class="marquee" id="marquee" role="status" aria-live="polite">調整力度，按下發射！</div>
+      <div class="marquee" id="marquee" role="status" aria-live="polite">選擇彈珠、調整力度後發射！</div>
     </div>
 
     <section class="control-panel" aria-label="遊戲控制區">
@@ -92,26 +119,25 @@
     </section>
 
     <details class="help">
-      <summary>玩法、任務與老虎機事件</summary>
-      <p>撞擊彩色轉盤可獲得 1 格 SLOT 能量，彈珠落入得分槽可獲得 2 格。集滿 6 格後會自動轉動，也可以按 SPIN。完成任務與升級可取得額外彈珠、分數及超級彈珠。</p>
-      <p>盤面上會隨機出現 HOT 目標；命中 3 次可啟動 10 秒 OVERDRIVE，期間所有得分再乘 2。</p>
+      <summary>玩法、特殊彈珠與老虎機事件</summary>
+      <p>特殊彈珠會消耗一份庫存和一顆普通彈珠。每撞擊彩色轉盤 12 次會獲得一份隨機彈珠補給；完成任務、升級與老虎機三連線也會補充特殊彈珠。</p>
       <div class="event-grid">
-        <div><span>7 7 7</span><b>+5000 分、+10 球、COMBO x9</b></div>
-        <div><span>★ ★ ★</span><b>FEVER 15 秒，所有得分 x3</b></div>
-        <div><span>♛ ♛ ♛</span><b>5 顆球內 COMBO 不會下降</b></div>
-        <div><span>⚡ ⚡ ⚡</span><b>接下來 3 發免費超級彈珠</b></div>
-        <div><span>● ● ●</span><b>MULTIBALL，連射 5 顆超級彈珠</b></div>
-        <div><span>♥ ♥ ♥</span><b>增加 5 顆彈珠</b></div>
-        <div><span>◆ ◆ ◆</span><b>直接獲得 1500 分</b></div>
-        <div><span>任意一對</span><b>+300 分、+1 顆彈珠</b></div>
+        <div><span>⬢ 重力</span><b>轉盤得分 x2、低彈跳</b></div>
+        <div><span>➤ 疾速</span><b>高速小球、撞釘得分 x3</b></div>
+        <div><span>★ 幸運</span><b>SLOT 能量 x2、入槽可能補球</b></div>
+        <div><span>✹ 爆裂</span><b>首次撞轉盤時爆炸加分</b></div>
+        <div><span>◇ 幽靈</span><b>穿過多數釘子、落空保留 COMBO</b></div>
+        <div><span>⊕ 磁力</span><b>靠近彩色轉盤時自動吸附</b></div>
+        <div><span>⚡ 雷霆</span><b>老虎機獎勵的免費超級彈珠</b></div>
       </div>
-      <p>這是純娛樂遊戲，不涉及真實金錢或兌換。</p>
+      <p>老虎機 `● ● ●` 會觸發 MULTIBALL，連射 5 顆雷霆彈珠。這是純娛樂遊戲，不涉及真實金錢或兌換。</p>
     </details>
   </main>
 
   <script src="core.js" defer></script>
   <script src="slot.js" defer></script>
   <script src="play.js" defer></script>
+  <script src="balls.js" defer></script>
   <script src="render.js" defer></script>
 </body>
 </html>
