@@ -8,34 +8,45 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>PIXEL PACHINKO</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="nav.css" />
+  <link rel="stylesheet" href="bonus.css" />
 </head>
 <body>
   <main class="machine">
     <nav class="game-nav" aria-label="遊戲切換">
       <a href="../">轉盤</a>
-      <a class="active" href="./" aria-current="page">柏青哥</a>
-      <a href="../slot-machine/">拉霸機</a>
+      <a class="active" href="./" aria-current="page">柏青哥＋老虎機</a>
     </nav>
 
     <div class="title">PIXEL PACHINKO</div>
 
     <section class="hud">
-      <div class="hud-box">
-        <div class="hud-label">SCORE</div>
-        <div class="hud-value" id="score">000000</div>
+      <div class="hud-box"><div class="hud-label">SCORE</div><div class="hud-value" id="score">000000</div></div>
+      <div class="hud-box"><div class="hud-label">BALLS</div><div class="hud-value" id="balls">50</div></div>
+      <div class="hud-box"><div class="hud-label">COMBO</div><div class="hud-value" id="combo">x1</div></div>
+      <div class="hud-box"><div class="hud-label">HIGH</div><div class="hud-value" id="high">000000</div></div>
+    </section>
+
+    <section class="bonus-slot" aria-label="柏青哥獎勵老虎機">
+      <div class="slot-heading">
+        <div>
+          <span class="slot-kicker">LUCKY SLOT</span>
+          <strong id="slotStatus">撞擊彩色轉盤累積能量</strong>
+        </div>
+        <div class="effect-badge" id="effectBadge">NORMAL</div>
       </div>
-      <div class="hud-box">
-        <div class="hud-label">BALLS</div>
-        <div class="hud-value" id="balls">50</div>
+
+      <div class="slot-main-row">
+        <div class="mini-reels" aria-label="老虎機滾輪">
+          <div class="mini-reel" data-slot-reel="0"><span class="slot-symbol dim">◆</span><span class="slot-symbol center">7</span><span class="slot-symbol dim">★</span></div>
+          <div class="mini-reel" data-slot-reel="1"><span class="slot-symbol dim">♥</span><span class="slot-symbol center">7</span><span class="slot-symbol dim">⚡</span></div>
+          <div class="mini-reel" data-slot-reel="2"><span class="slot-symbol dim">♛</span><span class="slot-symbol center">7</span><span class="slot-symbol dim">◆</span></div>
+        </div>
+        <button id="slotSpinBtn" class="slot-spin" disabled><span>★</span><b>SPIN</b></button>
       </div>
-      <div class="hud-box">
-        <div class="hud-label">COMBO</div>
-        <div class="hud-value" id="combo">x1</div>
-      </div>
-      <div class="hud-box">
-        <div class="hud-label">HIGH</div>
-        <div class="hud-value" id="high">000000</div>
+
+      <div class="slot-charge-row">
+        <div class="slot-meter" aria-hidden="true"><div id="slotMeterFill"></div></div>
+        <div class="slot-charge"><span id="slotEnergy">0</span>/6</div>
       </div>
     </section>
 
@@ -50,7 +61,6 @@
         <input id="powerSlider" type="range" min="20" max="100" value="55" step="1" aria-label="發射力度" />
         <output class="power-value" id="powerValue" for="powerSlider">55%</output>
       </div>
-
       <div class="controls">
         <button id="launchBtn" aria-label="發射彈珠"><span class="button-icon">▲</span>發射彈珠</button>
         <button id="autoBtn" class="secondary" aria-pressed="false"><span class="button-icon">∞</span>自動：關</button>
@@ -59,12 +69,23 @@
     </section>
 
     <details class="help">
-      <summary>玩法說明</summary>
-      <p>調整發射力度後按下「發射彈珠」，也可以直接點擊遊戲畫面發射。彈珠撞擊釘子會得分，落入中央 JACKPOT 槽可獲得最高分與額外 10 顆彈珠。這是純娛樂遊戲，不涉及真實金錢。</p>
+      <summary>玩法與老虎機事件</summary>
+      <p>撞擊彩色轉盤可獲得 1 格 SLOT 能量，彈珠落入得分槽可獲得 2 格。集滿 6 格後會自動轉動，也可以按 SPIN。</p>
+      <div class="event-grid">
+        <div><span>7 7 7</span><b>+5000 分、+10 球、COMBO x9</b></div>
+        <div><span>★ ★ ★</span><b>FEVER 15 秒，所有得分 x3</b></div>
+        <div><span>♛ ♛ ♛</span><b>5 顆球內 COMBO 不會下降</b></div>
+        <div><span>⚡ ⚡ ⚡</span><b>接下來 3 發免費超級彈珠</b></div>
+        <div><span>♥ ♥ ♥</span><b>增加 5 顆彈珠</b></div>
+        <div><span>◆ ◆ ◆</span><b>直接獲得 1500 分</b></div>
+        <div><span>任意一對</span><b>+300 分、+1 顆彈珠</b></div>
+      </div>
+      <p>這是純娛樂遊戲，不涉及真實金錢或兌換。</p>
     </details>
-    <div class="rotate-note">手機直向最適合遊玩，也支援橫向畫面。</div>
   </main>
 
-  <script src="game.js" defer></script>
+  <script src="core.js" defer></script>
+  <script src="slot.js" defer></script>
+  <script src="render.js" defer></script>
 </body>
 </html>
