@@ -1,1 +1,56 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>大福衝衝衝 DX</title><link rel="stylesheet" href="pixel-dx.css?v=2"></head><body><main class="shell"><canvas id="game" width="360" height="640" aria-label="大福像素跑酷射擊遊戲"></canvas><div class="hud"><div class="pixel-box">紅豆 <span id="coins">0</span></div><div class="pixel-box">距離 <span id="distance">0</span>m</div></div><div class="pixel-box stats" id="stats">豆餡彈 1｜連發 5.0｜分身 1｜愛心 3</div><div class="wave" id="wave">第 1 波</div><button class="mute" id="muteBtn" aria-label="切換音效">♪</button><section class="overlay" id="startScreen"><div class="panel"><h1 class="logo">大福衝衝衝 DX</h1><p class="subtitle">拖曳大福左右移動<br>發射紅豆，打倒壞脾氣甜點<br>穿越鳥居、開寶箱、挑戰抹茶大王</p><button class="pixel-btn" id="startBtn">開始冒險</button><div class="tiny">手機拖曳｜電腦 A D 或方向鍵</div></div></section><section class="overlay hide" id="gameOverScreen"><div class="panel"><h2 class="logo" id="resultTitle">大福扁掉了</h2><p class="subtitle">跑了 <b id="finalDistance">0</b> 公尺<br>收集 <b id="finalCoins">0</b> 顆紅豆<br>最高連擊 <b id="finalCombo">0</b></p><button class="pixel-btn" id="restartBtn">再蒸一顆</button></div></section></main><script src="pixel-dx.js?v=2"></script></body></html>
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#332447">
+  <title>大福衝衝衝 DX</title>
+  <link rel="stylesheet" href="pixel-dx.css?v=3">
+</head>
+<body>
+<main class="shell">
+  <canvas id="game" width="360" height="640" aria-label="大福像素跑酷射擊遊戲"></canvas>
+
+  <div class="top-hud">
+    <div class="pixel-box">紅豆 <span id="coins">0</span></div>
+    <div class="pixel-box stage-chip" id="stage">櫻花小徑</div>
+    <div class="pixel-box right">距離 <span id="distance">0</span>m</div>
+  </div>
+
+  <div class="status-row">
+    <div class="pixel-box stats" id="stats">豆餡 1｜連發 5.0｜分身 1｜♥♥♥♡♡</div>
+  </div>
+  <div class="wave" id="wave">第 1 波</div>
+  <button class="mute" id="muteBtn" aria-label="切換音效">♪</button>
+
+  <section class="overlay" id="startScreen">
+    <div class="panel">
+      <i class="corner c1"></i><i class="corner c2"></i>
+      <h1 class="logo">大福衝衝衝</h1>
+      <div class="edition">像素祭典 DX</div>
+      <p class="subtitle">
+        拖曳大福左右移動，自動發射紅豆<br>
+        擊退壞脾氣甜點、打開寶箱<br>
+        穿過升級鳥居，挑戰抹茶大福王
+      </p>
+      <button class="pixel-btn" id="startBtn">開始冒險</button>
+      <div class="tiny">手機拖曳｜電腦 A D 或左右方向鍵</div>
+    </div>
+  </section>
+
+  <section class="overlay hide" id="gameOverScreen">
+    <div class="panel">
+      <i class="corner c1"></i><i class="corner c2"></i>
+      <h2 class="logo small" id="resultTitle">大福扁掉了</h2>
+      <div class="score-grid">
+        <div class="score-card">距離<b id="finalDistance">0</b></div>
+        <div class="score-card">紅豆<b id="finalCoins">0</b></div>
+        <div class="score-card wide">最高連擊<b id="finalCombo">0</b></div>
+      </div>
+      <button class="pixel-btn" id="restartBtn">再蒸一顆</button>
+    </div>
+  </section>
+</main>
+<script src="pixel-dx.js?v=3"></script>
+</body>
+</html>
