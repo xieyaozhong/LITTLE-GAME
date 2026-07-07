@@ -13,50 +13,11 @@
   </style>
 </head>
 <body>
-  <div id="loading">OPENING PIXEL RIFT...</div>
-  <iframe id="gameFrame" src="../index.html?v=2" title="PIXEL RIFT 裂隙生存者" allow="autoplay; fullscreen"></iframe>
+  <div id="loading">OPENING PIXEL RIFT V3...</div>
+  <iframe id="gameFrame" src="../index.html?v=3" title="PIXEL RIFT 裂隙生存者" allow="autoplay; fullscreen"></iframe>
   <script>
     const frame=document.getElementById('gameFrame');
-
     frame.addEventListener('load',()=>{
-      try{
-        const win=frame.contentWindow;
-        const doc=frame.contentDocument;
-        const controls=doc.getElementById('mobileControls');
-        const dashButton=doc.getElementById('dashMobile');
-
-        // 不再由外層頁面隱藏虛擬按鍵，交給遊戲本身控制。
-        if(controls) controls.style.display='';
-
-        // iOS 有時不會可靠送出 click，改成按下按鈕便立即觸發空白鍵衝刺。
-        if(dashButton){
-          dashButton.style.touchAction='none';
-          const triggerDash=(event)=>{
-            event.preventDefault();
-            event.stopPropagation();
-            win.dispatchEvent(new KeyboardEvent('keydown',{
-              key:' ',
-              code:'Space',
-              bubbles:true,
-              cancelable:true
-            }));
-            win.dispatchEvent(new KeyboardEvent('keyup',{
-              key:' ',
-              code:'Space',
-              bubbles:true
-            }));
-          };
-
-          if(win.PointerEvent){
-            dashButton.addEventListener('pointerdown',triggerDash,{passive:false});
-          }else{
-            dashButton.addEventListener('touchstart',triggerDash,{passive:false});
-          }
-        }
-      }catch(error){
-        console.warn('Mobile controls fallback could not be installed.',error);
-      }
-
       const loading=document.getElementById('loading');
       if(loading) loading.remove();
       frame.style.display='block';
