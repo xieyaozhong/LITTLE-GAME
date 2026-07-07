@@ -32,6 +32,7 @@
         s.score+=ball.pinScore||1;
         G.setHigh(false);
         s.hud=true;
+        G.onPinHit?.(pin,ball);
         if(Math.random()<(G.compact?.08:.15)){
           G.particles(pin.x,pin.y,ball.core||G.p.white,G.compact?2:3);
         }
