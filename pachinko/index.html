@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="trigger.css" />
   <link rel="stylesheet" href="width-fix.css" />
   <link rel="stylesheet" href="mobile-screen.css" />
+  <link rel="stylesheet" href="chaos.css" />
 </head>
 <body>
   <main class="machine">
@@ -78,7 +79,7 @@
 
     <div class="game-wrap">
       <canvas id="game" width="720" height="920"></canvas>
-      <div class="marquee" id="marquee" role="status" aria-live="polite">滿足條件會自動觸發特殊彈珠！</div>
+      <div class="marquee" id="marquee" role="status" aria-live="polite">滿足條件會自動觸發特殊彈珠與場上事件！</div>
     </div>
 
     <section class="control-panel" aria-label="遊戲控制區">
@@ -96,17 +97,23 @@
     </section>
 
     <details class="help">
-      <summary>特殊彈珠自動觸發條件</summary>
+      <summary>特殊彈珠與場上事件</summary>
       <div class="event-grid">
-        <div><span>➤ 疾速</span><b>單顆彈珠撞擊 12 根釘子</b></div>
-        <div><span>✹ 爆裂</span><b>單顆彈珠撞擊 3 個彩色轉盤</b></div>
-        <div><span>⊕ 磁力</span><b>HOT 目標進度達到 2/3</b></div>
-        <div><span>⬢ 重力</span><b>彈珠進入 250 分以上得分槽</b></div>
-        <div><span>★ 幸運</span><b>COMBO 達到 x4</b></div>
-        <div><span>◇ 幽靈</span><b>連續兩顆彈珠落空</b></div>
-        <div><span>⚡ 雷霆</span><b>任務、升級或老虎機事件獲得</b></div>
+        <div><span>⬢ 重力</span><b>撞釘時粉碎附近釘子</b></div>
+        <div><span>➤ 疾速</span><b>越撞越快，每 4 根釘子額外加分</b></div>
+        <div><span>★ 幸運</span><b>連鎖補能量，撞轉盤可能補球</b></div>
+        <div><span>✹ 爆裂</span><b>爆炸後分裂成兩顆碎片</b></div>
+        <div><span>◇ 幽靈</span><b>穿釘並可從底部復活一次</b></div>
+        <div><span>⊕ 磁力</span><b>強力吸附轉盤與中央高分槽</b></div>
+        <div><span>⚡ 雷霆</span><b>命中轉盤時連鎖所有轉盤</b></div>
+        <div><span>GRAVITY FLIP</span><b>重力反轉</b></div>
+        <div><span>VORTEX</span><b>中央渦流吸引彈珠</b></div>
+        <div><span>ENERGY RUSH</span><b>SLOT 能量獲得量 ×2</b></div>
+        <div><span>PORTAL GATE</span><b>穿越傳送門改變軌跡</b></div>
+        <div><span>BUMPER FRENZY</span><b>彩色轉盤移動並提高獎勵</b></div>
+        <div><span>PIXEL RAIN</span><b>收集金幣可加分與能量</b></div>
       </div>
-      <p>特殊彈珠會依觸發順序自動排入下一發，不需要手動選擇。老虎機三連線也會追加不同的特殊彈珠。這是純娛樂遊戲，不涉及真實金錢或兌換。</p>
+      <p>場上事件會定時或在連續發射時出現。這是純娛樂遊戲，不涉及真實金錢或兌換。</p>
     </details>
   </main>
 
@@ -115,5 +122,6 @@
   <script src="play.js" defer></script>
   <script src="balls.js" defer></script>
   <script src="render.js" defer></script>
+  <script src="chaos.js" defer></script>
 </body>
 </html>
