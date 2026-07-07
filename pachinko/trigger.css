@@ -1,0 +1,59 @@
+.next-ball-status{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-height:28px;
+  margin-top:7px;
+  padding:5px 8px;
+  border:2px solid var(--cyan);
+  background:#0c1736;
+  color:var(--cyan);
+  font-size:10px;
+  font-weight:bold;
+  text-align:center;
+  box-shadow:2px 2px 0 var(--shadow);
+}
+
+.next-ball-status.special{
+  border-color:var(--yellow);
+  color:var(--yellow);
+  background:#34214c;
+  animation:nextBallPulse .7s steps(2,end) infinite;
+}
+
+.next-ball-status.thunder{
+  border-color:var(--pink);
+  color:var(--pink);
+}
+
+@media(max-width:600px){
+  .control-panel{
+    position:static !important;
+    bottom:auto !important;
+    margin:5px 0 0 !important;
+    border-bottom:3px solid var(--ink) !important;
+    box-shadow:3px 3px 0 var(--shadow) !important;
+  }
+
+  .next-ball-status{
+    min-height:24px;
+    margin-top:5px;
+    padding:3px 6px;
+    font-size:8px;
+  }
+}
+
+@media(max-height:700px) and (max-width:600px){
+  .next-ball-status{
+    min-height:21px;
+    margin-top:3px;
+    padding:2px 5px;
+    font-size:7px;
+  }
+}
+
+@keyframes nextBallPulse{
+  0%,100%{filter:none}
+  50%{filter:brightness(1.35)}
+}
