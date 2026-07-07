@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="bonus.css" />
   <link rel="stylesheet" href="layout-fix.css" />
   <link rel="stylesheet" href="play.css" />
-  <link rel="stylesheet" href="balls.css" />
+  <link rel="stylesheet" href="trigger.css" />
 </head>
 <body>
   <main class="machine">
@@ -50,32 +50,6 @@
       </div>
     </section>
 
-    <section class="ball-panel" aria-label="彈珠選擇">
-      <div class="ball-panel-head">
-        <div>
-          <span class="ball-panel-title">BALL LAB</span>
-          <strong id="selectedBallName">● 標準彈珠</strong>
-        </div>
-        <small id="selectedBallDesc">平衡型彈珠，可無限使用</small>
-      </div>
-
-      <div class="ball-rack" id="ballRack">
-        <button class="ball-choice active" data-ball="normal" aria-pressed="true"><span class="ball-icon">●</span><b>標準</b><span class="ball-count">∞</span></button>
-        <button class="ball-choice" data-ball="heavy" aria-pressed="false"><span class="ball-icon">⬢</span><b>重力</b><span class="ball-count">×3</span></button>
-        <button class="ball-choice" data-ball="speed" aria-pressed="false"><span class="ball-icon">➤</span><b>疾速</b><span class="ball-count">×3</span></button>
-        <button class="ball-choice" data-ball="lucky" aria-pressed="false"><span class="ball-icon">★</span><b>幸運</b><span class="ball-count">×2</span></button>
-        <button class="ball-choice" data-ball="bomb" aria-pressed="false"><span class="ball-icon">✹</span><b>爆裂</b><span class="ball-count">×1</span></button>
-        <button class="ball-choice" data-ball="ghost" aria-pressed="false"><span class="ball-icon">◇</span><b>幽靈</b><span class="ball-count">×2</span></button>
-        <button class="ball-choice" data-ball="magnet" aria-pressed="false"><span class="ball-icon">⊕</span><b>磁力</b><span class="ball-count">×2</span></button>
-      </div>
-
-      <div class="ball-supply">
-        <span>補給箱</span>
-        <div class="ball-supply-meter"><div id="ballSupplyFill"></div></div>
-        <em id="ballSupplyText">0/12</em>
-      </div>
-    </section>
-
     <section class="bonus-slot" aria-label="柏青哥獎勵老虎機">
       <div class="slot-heading">
         <div>
@@ -102,7 +76,7 @@
 
     <div class="game-wrap">
       <canvas id="game" width="720" height="920"></canvas>
-      <div class="marquee" id="marquee" role="status" aria-live="polite">選擇彈珠、調整力度後發射！</div>
+      <div class="marquee" id="marquee" role="status" aria-live="polite">滿足條件會自動觸發特殊彈珠！</div>
     </div>
 
     <section class="control-panel" aria-label="遊戲控制區">
@@ -111,6 +85,7 @@
         <input id="powerSlider" type="range" min="20" max="100" value="55" step="1" aria-label="發射力度" />
         <output class="power-value" id="powerValue" for="powerSlider">55%</output>
       </div>
+      <div class="next-ball-status" id="nextBallStatus">NEXT ● 標準彈珠</div>
       <div class="controls">
         <button id="launchBtn" aria-label="發射彈珠"><span class="button-icon">▲</span>發射彈珠</button>
         <button id="autoBtn" class="secondary" aria-pressed="false"><span class="button-icon">∞</span>自動：關</button>
@@ -119,18 +94,17 @@
     </section>
 
     <details class="help">
-      <summary>玩法、特殊彈珠與老虎機事件</summary>
-      <p>特殊彈珠會消耗一份庫存和一顆普通彈珠。每撞擊彩色轉盤 12 次會獲得一份隨機彈珠補給；完成任務、升級與老虎機三連線也會補充特殊彈珠。</p>
+      <summary>特殊彈珠自動觸發條件</summary>
       <div class="event-grid">
-        <div><span>⬢ 重力</span><b>轉盤得分 x2、低彈跳</b></div>
-        <div><span>➤ 疾速</span><b>高速小球、撞釘得分 x3</b></div>
-        <div><span>★ 幸運</span><b>SLOT 能量 x2、入槽可能補球</b></div>
-        <div><span>✹ 爆裂</span><b>首次撞轉盤時爆炸加分</b></div>
-        <div><span>◇ 幽靈</span><b>穿過多數釘子、落空保留 COMBO</b></div>
-        <div><span>⊕ 磁力</span><b>靠近彩色轉盤時自動吸附</b></div>
-        <div><span>⚡ 雷霆</span><b>老虎機獎勵的免費超級彈珠</b></div>
+        <div><span>➤ 疾速</span><b>單顆彈珠撞擊 12 根釘子</b></div>
+        <div><span>✹ 爆裂</span><b>單顆彈珠撞擊 3 個彩色轉盤</b></div>
+        <div><span>⊕ 磁力</span><b>HOT 目標進度達到 2/3</b></div>
+        <div><span>⬢ 重力</span><b>彈珠進入 250 分以上得分槽</b></div>
+        <div><span>★ 幸運</span><b>COMBO 達到 x4</b></div>
+        <div><span>◇ 幽靈</span><b>連續兩顆彈珠落空</b></div>
+        <div><span>⚡ 雷霆</span><b>任務、升級或老虎機事件獲得</b></div>
       </div>
-      <p>老虎機 `● ● ●` 會觸發 MULTIBALL，連射 5 顆雷霆彈珠。這是純娛樂遊戲，不涉及真實金錢或兌換。</p>
+      <p>特殊彈珠會依觸發順序自動排入下一發，不需要手動選擇。老虎機三連線也會追加不同的特殊彈珠。這是純娛樂遊戲，不涉及真實金錢或兌換。</p>
     </details>
   </main>
 
