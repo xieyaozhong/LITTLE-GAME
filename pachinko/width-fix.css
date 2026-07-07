@@ -1,0 +1,107 @@
+/* Keep the complete mobile machine inside the visual viewport. */
+html,
+body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+}
+
+@supports (overflow:clip){
+  html,
+  body{overflow-x:clip}
+}
+
+@media (max-width:600px){
+  body{
+    display:flex !important;
+    justify-content:center;
+    align-items:flex-start;
+    width:100%;
+    padding-top:0;
+    padding-right:max(14px,env(safe-area-inset-right));
+    padding-bottom:0;
+    padding-left:max(14px,env(safe-area-inset-left));
+    background:var(--bg);
+  }
+
+  .machine{
+    width:100% !important;
+    max-width:390px !important;
+    min-width:0 !important;
+    margin:0 auto;
+    padding-right:5px !important;
+    padding-left:5px !important;
+    overflow:visible;
+  }
+
+  .machine > *,
+  .game-nav,
+  .hud,
+  .progress-panel,
+  .bonus-slot,
+  .game-wrap,
+  .control-panel,
+  .help{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+  }
+
+  .game-nav,
+  .hud,
+  .progress-content,
+  .slot-main-row,
+  .mini-reels,
+  .power-control,
+  .controls{
+    min-width:0;
+  }
+
+  .game-wrap{
+    justify-self:stretch !important;
+    width:100% !important;
+    max-width:100% !important;
+  }
+
+  canvas{
+    max-width:100%;
+  }
+
+  .hud{
+    gap:3px;
+  }
+
+  .hud-box{
+    min-width:0;
+    padding-right:0;
+    padding-left:0;
+  }
+
+  .hud-value{
+    font-size:clamp(11px,3.65vw,16px);
+  }
+
+  .bonus-slot,
+  .progress-panel,
+  .control-panel{
+    overflow:hidden;
+  }
+
+  .control-panel{
+    margin-right:0 !important;
+    margin-left:0 !important;
+  }
+}
+
+@media (max-width:380px){
+  body{
+    padding-right:max(10px,env(safe-area-inset-right));
+    padding-left:max(10px,env(safe-area-inset-left));
+  }
+
+  .machine{
+    max-width:360px !important;
+    padding-right:3px !important;
+    padding-left:3px !important;
+  }
+}
