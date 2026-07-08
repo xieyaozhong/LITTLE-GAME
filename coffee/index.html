@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="style.css?v=2">
 <link rel="stylesheet" href="word-effects.css?v=1">
 <link rel="stylesheet" href="polish.css?v=1">
+<link rel="stylesheet" href="result-feedback.css?v=1">
 </head>
 <body>
 <main class="app">
@@ -32,13 +33,17 @@
 <button class="hold" id="hold">開始品飲</button>
 </section>
 <section class="panel result hidden" id="result">
-<h2 id="title"></h2><div class="metrics" id="metrics"></div><div class="tags" id="tags"></div><div class="quote" id="quote"></div>
+<h2 id="title"></h2>
+<div class="metrics" id="metrics"></div>
+<div class="flavor-summary" id="flavorSummary"></div>
+<div class="tags" id="tags"></div>
+<div class="quote" id="quote"></div>
 <div class="actions"><button class="download" id="download">下載評測圖</button><button class="restart" id="restart">再品一杯</button></div>
 <div class="canvasbox"><canvas id="canvas" width="900" height="1200"></canvas></div>
 </section>
 <footer>Pixel Coffee Lab · 咖啡風味探索實驗室</footer>
 </main>
 <div class="toast" id="toast"></div>
-<script src="game.js?v=3"></script>
+<script src="game.js?v=4"></script>
 </body>
 </html>
