@@ -1,4 +1,4 @@
-name: Fix mobile long press
+name: Add adjective timing mechanic
 
 on:
   push:
@@ -15,43 +15,104 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Prevent selection and touch callout
+      - name: Add tasting adjective timing
         shell: python
         run: |
           from pathlib import Path
+          import re
 
           path = Path("index.html")
           text = path.read_text(encoding="utf-8")
 
-          replacements = [
-              (
-                  "-webkit-tap-highlight-color:transparent;touch-action:manipulation",
-                  "-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none;touch-action:manipulation",
-              ),
-              (
-                  ".hold{width:100%;",
-                  ".hold{width:100%;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;",
-              ),
-              (
-                  "function press(e){if(!S.started){start();return}if(S.done||S.down)return;e.preventDefault();",
-                  "function press(e){e.preventDefault();window.getSelection?.()?.removeAllRanges();if(!S.started){start();return}if(S.done||S.down)return;",
-              ),
-              (
-                  'E.hold.addEventListener("contextmenu",e=>e.preventDefault());$("restart").onclick=reset;',
-                  'E.hold.addEventListener("contextmenu",e=>e.preventDefault());["selectstart","contextmenu","dragstart"].forEach(t=>E.game.addEventListener(t,e=>e.preventDefault()));document.addEventListener("selectionchange",()=>{if(S.down)window.getSelection?.()?.removeAllRanges()});$("restart").onclick=reset;',
-              ),
-          ]
+          if 'id="tasteWord"' in text and 'wordSets=' in text:
+              print("Adjective timing mechanic already installed")
+              raise SystemExit(0)
 
-          changed = False
-          for old, new in replacements:
-              if old in text:
-                  text = text.replace(old, new, 1)
-                  changed = True
-              elif new not in text:
-                  raise SystemExit(f"Expected pattern not found: {old[:80]}")
+          def replace_once(old, new, label):
+              global text
+              if old not in text:
+                  raise SystemExit(f"Missing pattern for {label}: {old[:100]}")
+              text = text.replace(old, new, 1)
 
-          if changed:
-              path.write_text(text, encoding="utf-8")
+          replace_once(
+              '.scene{position:relative;display:grid;place-items:center;width:100%;min-height:310px;user-select:none}.ringbox{',
+              '.scene{position:relative;display:grid;place-items:center;width:100%;min-height:310px;user-select:none}.taste-word{position:absolute;z-index:8;top:16px;left:50%;transform:translateX(-50%);min-width:190px;padding:10px 14px;text-align:center;font-size:20px;font-weight:bold;color:#ead2ad;background:#1a100d;border:3px solid #8f5b3d;box-shadow:4px 4px 0 #100906;transition:transform .12s,background .12s,color .12s;pointer-events:none}.taste-word.active{color:#fff2cf;transform:translateX(-50%) scale(1.06);animation:wordPop .22s steps(2)}.taste-word.best{color:#211511;background:#ffd56a;border-color:#fff2cf;box-shadow:0 0 0 4px rgba(255,213,106,.2),5px 5px 0 #100906}@keyframes wordPop{50%{transform:translateX(-50%) scale(1.16)}}.ringbox{',
+              "word CSS",
+          )
+
+          replace_once(
+              '<div class="scene" id="scene"><div class="ringbox">',
+              '<div class="scene" id="scene"><div class="taste-word" id="tasteWord">按住探索風味</div><div class="ringbox">',
+              "word display",
+          )
+
+          replace_once(
+              '短按偏向明亮果香，長按偏向厚實醇香。',
+              '按住時形容詞會依序變化，看到最適合的詞就放開。',
+              "initial instructions",
+          )
+
+          replace_once(
+              'toast:$("toast")},stages=',
+              'toast:$("toast"),word:$("tasteWord")},stages=',
+              "word element binding",
+          )
+
+          replace_once(
+              '}],S={started:false',
+              '}],wordSets=[[{t:"水感",s:20},{t:"清新",s:52},{t:"柑橘",s:78},{t:"花香",s:100},{t:"蜂蜜",s:86},{t:"熟果",s:55},{t:"過熟",s:22}],[{t:"單薄",s:20},{t:"輕盈",s:52},{t:"滑順",s:80},{t:"平衡",s:100},{t:"焦糖",s:86},{t:"濃郁",s:58},{t:"苦澀",s:20}],[{t:"短暫",s:22},{t:"乾淨",s:56},{t:"甘甜",s:82},{t:"回甘",s:100},{t:"綿長",s:88},{t:"煙燻",s:55},{t:"乾澀",s:18}]],S={started:false',
+              "word sequences",
+          )
+
+          replace_once(
+              '<span>短按：明亮果香　｜　長按：醇厚甜感</span>',
+              '<span>按住觀察形容詞，出現金色「現在放開」時立即鬆手。</span>',
+              "stage instructions",
+          )
+
+          replace_once(
+              'E.hold.textContent="按住品嚐・放開記錄";',
+              'E.hold.textContent="按住品嚐・看到最佳詞放開";',
+              "button label",
+          )
+
+          press_pattern = re.compile(r'function press\(e\)\{.*?\}function release\(e\)\{', re.S)
+          new_press = '''function press(e){e.preventDefault();window.getSelection?.()?.removeAllRanges();if(!S.started){start();return}if(S.done||S.down)return;S.down=true;S.t0=performance.now();S.wordIndex=-1;S.word="";S.wordScore=0;E.scene.classList.add("pressing");E.hold.classList.add("down");E.word.classList.add("active");navigator.vibrate&&navigator.vibrate(18);function bar(){if(!S.down)return;let elapsed=performance.now()-S.t0;E.hold.style.setProperty("--p",`${clamp(elapsed/22,0,100)}%`);let words=wordSets[si()],i=Math.min(words.length-1,Math.floor(elapsed/310)),item=words[i];if(i!==S.wordIndex){S.wordIndex=i;S.word=item.t;S.wordScore=item.s;E.word.textContent=item.s>=95?`✨ ${item.t}｜現在放開！`:item.t;E.word.classList.toggle("best",item.s>=95);tone(330+i*42,.035);if(navigator.vibrate)navigator.vibrate(item.s>=95?28:8)}requestAnimationFrame(bar)}bar()}function release(e){'''
+          text, count = press_pattern.subn(new_press, text, count=1)
+          if count != 1:
+              raise SystemExit("Could not replace press handler")
+
+          replace_once(
+              'let d=clamp(performance.now()-S.t0,70,2400),a=clamp(1-Math.abs(S.scale-.95)/.75,0,1);S.inputs.push({d,a,stage:si()});',
+              'let d=clamp(performance.now()-S.t0,70,2400),ring=clamp(1-Math.abs(S.scale-.95)/.75,0,1),wordScore=S.wordScore||20,a=clamp(ring*.55+wordScore/100*.45,0,1);S.inputs.push({d,a,stage:si(),word:S.word,wordScore});E.word.classList.remove("active","best");E.word.textContent=`抓到：${S.word}`;',
+              "release scoring",
+          )
+
+          replace_once(
+              'toast(`${type}・${hit}`);',
+              'toast(`${S.word}・${hit}`);',
+              "release message",
+          )
+
+          replace_once(
+              'setTimeout(()=>{ui();toast(`進入 ${stage().n}`)},300)',
+              'setTimeout(()=>{ui();E.word.textContent="按住探索風味";toast(`進入 ${stage().n}`)},300)',
+              "stage reset",
+          )
+
+          replace_once(
+              'if(m.順口度>80)flavors.push("絲滑");flavors=[...new Set(flavors)].slice(0,4);',
+              'if(m.順口度>80)flavors.push("絲滑");let chosen=S.inputs.map(x=>x.word).filter(Boolean);flavors=[...new Set([...chosen,...flavors])].slice(0,4);',
+              "result adjective tags",
+          )
+
+          replace_once(
+              'E.hint.innerHTML="<b>按下「開始品飲」</b><span>短按偏向明亮果香，長按偏向厚實醇香。</span>";ui();scrollTo',
+              'E.hint.innerHTML="<b>按下「開始品飲」</b><span>按住時形容詞會依序變化，看到最適合的詞就放開。</span>";E.word.textContent="按住探索風味";E.word.classList.remove("active","best");ui();scrollTo',
+              "reset display",
+          )
+
+          path.write_text(text, encoding="utf-8")
 
       - name: Commit patch
         run: |
@@ -59,6 +120,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
           if ! git diff --cached --quiet; then
-            git commit -m "Prevent mobile long-press text selection"
+            git commit -m "Add adjective timing tasting mechanic"
             git push
           fi
