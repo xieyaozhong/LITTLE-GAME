@@ -1,11 +1,11 @@
 characterSvgs.lucy=`<svg viewBox="0 0 118 145" aria-label="露西像素角色">
-  <g class="lucy-aura" opacity=".9">
+  <g class="lucy-signal" opacity=".9">
     <rect x="8" y="19" width="7" height="7" fill="#ffe94d"/>
     <rect x="101" y="27" width="6" height="14" fill="#fff6a3"/>
     <rect x="104" y="55" width="5" height="10" fill="#ffe94d"/>
     <rect x="11" y="112" width="6" height="9" fill="#fff6a3"/>
   </g>
-  <g class="lucy-sparkles" opacity=".95">
+  <g class="lucy-scan-nodes" opacity=".95">
     <rect x="16" y="31" width="2" height="10" fill="#ffffff"/>
     <rect x="12" y="35" width="10" height="2" fill="#ffffff"/>
     <rect x="97" y="43" width="2" height="9" fill="#dffff5"/>
@@ -38,10 +38,7 @@ characterSvgs.lucy=`<svg viewBox="0 0 118 145" aria-label="露西像素角色">
     <rect x="69" y="59" width="9" height="9" fill="#82e2bc"/>
     <rect x="42" y="61" width="5" height="5" fill="#203448"/>
     <rect x="71" y="61" width="5" height="5" fill="#203448"/>
-    <rect x="32" y="71" width="11" height="5" fill="#ff9fb5"/>
-    <rect x="76" y="71" width="11" height="5" fill="#ff9fb5"/>
-    <rect x="48" y="76" width="22" height="5" fill="#b86f76"/>
-    <rect x="52" y="75" width="14" height="3" fill="#ffdfe7"/>
+    <rect x="51" y="77" width="17" height="4" fill="#9c6871"/>
   </g>
   <g class="lucy-neck">
     <rect x="49" y="82" width="21" height="12" fill="#24173a"/>
@@ -93,14 +90,14 @@ characterSvgs.lucy=`<svg viewBox="0 0 118 145" aria-label="露西像素角色">
 
 characters.lucy={
   name:'露西',
-  description:'糖果霓虹駭客型：粉紫、藍綠雙色造型，以可愛外表掩護高速入侵。',
-  idle:'準備好了，今天的訊號很漂亮。',
-  start:'連線完成……一起看看結果吧。',
-  result:'解碼完成，這次也很可愛。',
+  description:'霓虹駭客型：透過神經連線逐格掃描輪盤，直接鎖定抽取結果。',
+  idle:'訊號穩定，等待掃描指令。',
+  start:'神經連線完成，開始掃描。',
+  result:'目標已鎖定，資料寫入完成。',
   duration:3600,
-  windup:520,
-  minSpins:8,
-  maxSpins:11,
+  windup:420,
+  minSpins:0,
+  maxSpins:0,
   tickStep:8,
   baseTone:820,
   ease:p=>1-Math.pow(1-p,5.4)
