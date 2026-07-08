@@ -31,18 +31,30 @@ document.querySelectorAll('.character-btn').forEach(button=>{
 
 window.addEventListener('load',()=>{
   let behaviorLoaded=false;
+  let effectsLoaded=false;
+  const version='20260708-integrated';
+
+  const loadEffects=()=>{
+    if(effectsLoaded)return;
+    effectsLoaded=true;
+
+    const effects=document.createElement('script');
+    effects.src=`lucy-effects.js?v=${version}`;
+    document.body.appendChild(effects);
+  };
 
   const loadBehaviors=()=>{
     if(behaviorLoaded)return;
     behaviorLoaded=true;
 
     const script=document.createElement('script');
-    script.src='behaviors.js';
+    script.src=`behaviors.js?v=${version}`;
+    script.onload=loadEffects;
     document.body.appendChild(script);
   };
 
   const lucyScript=document.createElement('script');
-  lucyScript.src='lucy.js';
+  lucyScript.src=`lucy.js?v=${version}`;
   lucyScript.onload=loadBehaviors;
   lucyScript.onerror=loadBehaviors;
   document.body.appendChild(lucyScript);
