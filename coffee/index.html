@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="word-effects.css?v=1">
 <link rel="stylesheet" href="polish.css?v=1">
 <link rel="stylesheet" href="result-feedback.css?v=1">
+<link rel="stylesheet" href="result-unified.css?v=1">
 </head>
 <body>
 <main class="app">
@@ -33,13 +34,34 @@
 <button class="hold" id="hold">開始品飲</button>
 </section>
 <section class="panel result hidden" id="result">
+<div class="result-shell">
+<div class="result-hero">
+<div class="result-kicker">YOUR PIXEL COFFEE PROFILE</div>
 <h2 id="title"></h2>
-<div class="metrics" id="metrics"></div>
-<div class="flavor-summary" id="flavorSummary"></div>
-<div class="tags" id="tags"></div>
 <div class="quote" id="quote"></div>
+</div>
+<div class="result-stack">
+<section class="result-block">
+<div class="block-heading"><span class="block-index">01</span><div class="block-copy"><b>風味指標</b><small>六項感官分數</small></div></div>
+<div class="metrics" id="metrics"></div>
+</section>
+<section class="result-block">
+<div class="block-heading"><span class="block-index">02</span><div class="block-copy"><b>風味輪廓</b><small>主要家族與三階段紀錄</small></div></div>
+<div class="flavor-summary" id="flavorSummary"></div>
+</section>
+<section class="result-block">
+<div class="block-heading"><span class="block-index">03</span><div class="block-copy"><b>本次捕捉</b><small>六次實際選到的細項</small></div></div>
+<div class="tags" id="tags"></div>
+</section>
+</div>
+<div class="result-footer">
 <div class="actions"><button class="download" id="download">下載評測圖</button><button class="restart" id="restart">再品一杯</button></div>
+<div class="result-preview">
+<div class="preview-heading"><span>評測圖預覽</span><span>可下載分享</span></div>
 <div class="canvasbox"><canvas id="canvas" width="900" height="1200"></canvas></div>
+</div>
+</div>
+</div>
 </section>
 <footer>Pixel Coffee Lab · 咖啡風味探索實驗室</footer>
 </main>
