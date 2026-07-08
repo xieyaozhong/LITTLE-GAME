@@ -1,0 +1,64 @@
+name: Fix mobile long press
+
+on:
+  push:
+    paths:
+      - .github/workflows/fix-mobile-long-press.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prevent selection and touch callout
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("index.html")
+          text = path.read_text(encoding="utf-8")
+
+          replacements = [
+              (
+                  "-webkit-tap-highlight-color:transparent;touch-action:manipulation",
+                  "-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none;touch-action:manipulation",
+              ),
+              (
+                  ".hold{width:100%;",
+                  ".hold{width:100%;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;",
+              ),
+              (
+                  "function press(e){if(!S.started){start();return}if(S.done||S.down)return;e.preventDefault();",
+                  "function press(e){e.preventDefault();window.getSelection?.()?.removeAllRanges();if(!S.started){start();return}if(S.done||S.down)return;",
+              ),
+              (
+                  'E.hold.addEventListener("contextmenu",e=>e.preventDefault());$("restart").onclick=reset;',
+                  'E.hold.addEventListener("contextmenu",e=>e.preventDefault());["selectstart","contextmenu","dragstart"].forEach(t=>E.game.addEventListener(t,e=>e.preventDefault()));document.addEventListener("selectionchange",()=>{if(S.down)window.getSelection?.()?.removeAllRanges()});$("restart").onclick=reset;',
+              ),
+          ]
+
+          changed = False
+          for old, new in replacements:
+              if old in text:
+                  text = text.replace(old, new, 1)
+                  changed = True
+              elif new not in text:
+                  raise SystemExit(f"Expected pattern not found: {old[:80]}")
+
+          if changed:
+              path.write_text(text, encoding="utf-8")
+
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Prevent mobile long-press text selection"
+            git push
+          fi
