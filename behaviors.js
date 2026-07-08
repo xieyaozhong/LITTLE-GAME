@@ -5,7 +5,7 @@ const reactionLines={
   rabbit:{rare:'咻！大獎被我追到了！',normal:'速度剛剛好！',retry:'再跳一次！',miss:'剛剛跑過頭啦，下次更快！'},
   akira:{rare:'果然，勝負從第一手就決定了。',normal:'這是計算之內的結果。',retry:'局面還沒結束，再下一手。',miss:'失手也要記住，下一局會更準。'},
   sai:{rare:'啊！這就是神之一手的光芒！',normal:'命運落在這一格，也很美呢。',retry:'棋局尚未終結，再來一手吧！',miss:'唔……此局未成，下一手一定更精彩！'},
-  lucy:{rare:'高價值目標已鎖定。這次入侵很完美。',normal:'資料解碼完成，結果還不錯。',retry:'連線仍然開著，再入侵一次。',miss:'訊號被干擾了。下一次，我會抓得更準。'}
+  lucy:{rare:'鎖定完成♪ 大獎果然最適合可愛的我。',normal:'解碼成功，這個結果也很不錯。',retry:'連線還沒斷，再陪我玩一次吧。',miss:'哼，只是訊號不穩而已，下次會更準。'}
 };
 const reactionCaptions={rare:'JACKPOT REACTION',normal:'NICE LANDING',retry:'BONUS TURN',miss:'NEXT CHANCE'};
 const actionLabels={cat:'PAW POWER',bear:'HEAVY PUSH',rabbit:'SPEED RUSH',akira:'PRECISION READ',sai:'SPIRIT DRIVE',lucy:'NEURAL LINK'};
