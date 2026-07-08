@@ -1,3 +1,4 @@
+/* Lucy character animation ------------------------------------------------ */
 .pixel-helper .lucy-hair,
 .pixel-helper .lucy-hair-back,
 .pixel-helper .lucy-scan-nodes,
@@ -9,307 +10,381 @@
 }
 
 .pixel-helper .lucy-hair,
-.pixel-helper .lucy-hair-back{
-  transform-origin:50% 20%;
-}
-
+.pixel-helper .lucy-hair-back{transform-origin:50% 20%}
 .pixel-helper .lucy-scan-nodes,
-.pixel-helper .lucy-signal{
-  transform-origin:50% 50%;
-}
-
-.pixel-helper .lucy-jacket{
-  transform-origin:50% 25%;
-}
-
-.pixel-helper .lucy-boots{
-  transform-origin:50% 100%;
-}
+.pixel-helper .lucy-signal{transform-origin:50% 50%}
+.pixel-helper .lucy-jacket{transform-origin:50% 25%}
+.pixel-helper .lucy-boots{transform-origin:50% 100%}
 
 .wheel-box[data-character="lucy"]{
   --charge:0;
+  --lucy-cyan:#82f3d1;
+  --lucy-blue:#7887ff;
+  --lucy-yellow:#ffe65c;
+  --lucy-dark:#10172d;
 }
 
 .wheel-box[data-character="lucy"] .pixel-helper{
   filter:
-    drop-shadow(0 0 8px rgba(130,226,188,.42))
-    drop-shadow(0 0 13px rgba(126,131,216,.3))
+    drop-shadow(0 0 7px rgba(130,243,209,.38))
+    drop-shadow(0 0 12px rgba(120,135,255,.25))
     drop-shadow(4px 4px 0 rgba(36,23,58,.25));
 }
 
 .wheel-box[data-character="lucy"] .lucy-hair{
-  animation:lucyHairIdle 1.7s steps(2,end) infinite;
+  animation:lucyHairIdle 2s steps(2,end) infinite;
 }
 
 .wheel-box[data-character="lucy"] .lucy-hair-back{
-  animation:lucyHairBack 2s steps(3,end) infinite;
+  animation:lucyHairBack 2.3s steps(3,end) infinite;
 }
 
 .wheel-box[data-character="lucy"] .lucy-scan-nodes{
-  animation:lucyNodePulse 1.5s steps(3,end) infinite;
+  animation:lucyNodeIdle 1.8s steps(3,end) infinite;
 }
 
 .wheel-box[data-character="lucy"] .lucy-signal{
-  animation:lucySignalIdle 1.4s steps(3,end) infinite;
+  animation:lucySignalIdle 1.65s steps(3,end) infinite;
 }
 
 .wheel-box[data-character="lucy"] .lucy-face{
-  animation:lucyBlink 3.1s steps(1,end) infinite;
+  animation:lucyBlink 3.6s steps(1,end) infinite;
 }
 
 .wheel-box[data-character="lucy"] .lucy-jacket{
-  animation:lucySleeveIdle 1.8s steps(2,end) infinite;
+  animation:lucySleeveIdle 2.1s steps(2,end) infinite;
 }
 
-.wheel-box[data-character="lucy"].is-spinning .pixel-helper{
-  animation:
-    lucyEnter .58s steps(5,end) both,
-    lucyHover .34s steps(2,end) .58s infinite;
+/* Remove every shared character effect from Lucy ------------------------- */
+.wheel-box[data-character="lucy"] .ring-one,
+.wheel-box[data-character="lucy"] .ring-two,
+.wheel-box[data-character="lucy"] .paw-burst,
+.wheel-box[data-character="lucy"] .force-wave,
+.wheel-box[data-character="lucy"] .speed-lines,
+.wheel-box[data-character="lucy"] .focus-grid,
+.wheel-box[data-character="lucy"] .spirit-orbit{
+  display:none!important;
+  opacity:0!important;
+  animation:none!important;
 }
 
-.wheel-box[data-character="lucy"].is-spinning .arm-front{
-  animation:lucyHackArm .28s steps(3,end) .45s infinite;
+.wheel-box[data-character="lucy"].is-spinning .ring-one,
+.wheel-box[data-character="lucy"].is-spinning .rim-lights i,
+.wheel-box[data-character="lucy"].sudden-stop .wheel-anchor{
+  animation:none!important;
 }
 
-.wheel-box[data-character="lucy"].is-spinning .arm-back{
-  animation:lucyBackArm .4s steps(3,end) .45s infinite;
+.wheel-box[data-character="lucy"].reaction-miss .wheel-shell{
+  filter:none!important;
 }
 
-.wheel-box[data-character="lucy"].is-spinning .lucy-scan-nodes{
-  animation:lucyNodeFast .3s steps(3,end) infinite;
-}
-
-.wheel-box[data-character="lucy"].is-spinning .lucy-boots{
-  animation:lucyBootPulse .42s steps(2,end) infinite;
-}
-
-.wheel-box[data-character="lucy"] .wheel-shell{
-  position:relative;
+/* Dedicated Lucy effect layers ------------------------------------------ */
+.wheel-box[data-character="lucy"] .impact-layer,
+.wheel-box[data-character="lucy"] .wheel-shell,
+.wheel-box[data-character="lucy"] .wheel-anchor{
   overflow:visible;
 }
 
+.wheel-box[data-character="lucy"] .impact-layer::before,
+.wheel-box[data-character="lucy"] .impact-layer::after,
 .wheel-box[data-character="lucy"] .wheel-shell::before,
 .wheel-box[data-character="lucy"] .wheel-shell::after{
   content:"";
   position:absolute;
-  inset:-10px;
-  border-radius:50%;
   pointer-events:none;
   opacity:0;
 }
 
+/* Outer HUD with technical ticks */
+.wheel-box[data-character="lucy"] .impact-layer::before{
+  left:48%;
+  top:49%;
+  width:calc(var(--stage-size) + 76px);
+  aspect-ratio:1;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  background:
+    radial-gradient(circle,
+      transparent 0 44%,
+      rgba(130,243,209,.2) 44.5% 45.2%,
+      transparent 45.7% 48.5%,
+      rgba(120,135,255,.34) 49% 49.8%,
+      transparent 50.3%),
+    repeating-conic-gradient(
+      from 0deg,
+      rgba(130,243,209,.95) 0deg 1deg,
+      transparent 1deg 12deg);
+  -webkit-mask:radial-gradient(circle,transparent 0 64%,#000 64.5% 72%,transparent 72.5%);
+  mask:radial-gradient(circle,transparent 0 64%,#000 64.5% 72%,transparent 72.5%);
+  filter:drop-shadow(0 0 7px rgba(130,243,209,.55));
+  z-index:1;
+}
+
+/* Dedicated scanning beam */
+.wheel-box[data-character="lucy"] .impact-layer::after{
+  left:48%;
+  top:49%;
+  width:calc(var(--stage-size) + 38px);
+  aspect-ratio:1;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  background:conic-gradient(
+    from -4deg,
+    transparent 0deg 334deg,
+    rgba(130,243,209,.04) 338deg,
+    rgba(130,243,209,.24) 347deg,
+    rgba(255,255,255,.95) 356deg,
+    var(--lucy-yellow) 359deg,
+    transparent 360deg);
+  -webkit-mask:radial-gradient(circle,transparent 0 14%,#000 15% 100%);
+  mask:radial-gradient(circle,transparent 0 14%,#000 15% 100%);
+  filter:blur(.4px) drop-shadow(0 0 12px rgba(130,243,209,.8));
+  z-index:2;
+}
+
+/* Inner electronic rings */
+.wheel-box[data-character="lucy"] .wheel-shell::before{
+  inset:7%;
+  border-radius:50%;
+  border:2px solid rgba(130,243,209,.65);
+  box-shadow:
+    inset 0 0 18px rgba(130,243,209,.2),
+    0 0 14px rgba(120,135,255,.35);
+  background:
+    repeating-radial-gradient(circle,
+      transparent 0 18px,
+      rgba(130,243,209,.1) 19px 20px,
+      transparent 21px 34px);
+  z-index:4;
+}
+
+/* Lock brackets */
+.wheel-box[data-character="lucy"] .wheel-shell::after{
+  inset:16%;
+  z-index:6;
+  background:
+    linear-gradient(var(--lucy-yellow),var(--lucy-yellow)) left top/20% 4px no-repeat,
+    linear-gradient(var(--lucy-yellow),var(--lucy-yellow)) left top/4px 20% no-repeat,
+    linear-gradient(var(--lucy-yellow),var(--lucy-yellow)) right top/20% 4px no-repeat,
+    linear-gradient(var(--lucy-yellow),var(--lucy-yellow)) right top/4px 20% no-repeat,
+    linear-gradient(var(--lucy-yellow),var(--lucy-yellow)) left bottom/20% 4px no-repeat,
+    linear-gradient(var(--lucy-yellow),var(--lucy-yellow)) left bottom/4px 20% no-repeat,
+    linear-gradient(var(--lucy-yellow),var(--lucy-yellow)) right bottom/20% 4px no-repeat,
+    linear-gradient(var(--lucy-yellow),var(--lucy-yellow)) right bottom/4px 20% no-repeat;
+  filter:drop-shadow(0 0 7px rgba(255,230,92,.95));
+}
+
+/* Neutralize base wheel motion; Lucy never spins the wheel */
+.wheel-box[data-character="lucy"] canvas{
+  transform:rotate(0deg)!important;
+  transition:none!important;
+}
+
+.wheel-box[data-character="lucy"].is-spinning .pixel-helper{
+  animation:lucyJackIn .5s steps(5,end) both,lucyLinkHold .72s steps(2,end) .5s infinite;
+}
+
+.wheel-box[data-character="lucy"].is-spinning .arm-front{
+  animation:lucyHackArm .36s steps(3,end) .38s infinite;
+}
+
+.wheel-box[data-character="lucy"].is-spinning .arm-back{
+  animation:lucyBackArm .52s steps(3,end) .38s infinite;
+}
+
+.wheel-box[data-character="lucy"].is-spinning .lucy-scan-nodes{
+  animation:lucyNodeActive .28s steps(3,end) infinite;
+}
+
+.wheel-box[data-character="lucy"].is-spinning .lucy-boots{
+  animation:lucyBootSignal .48s steps(2,end) infinite;
+}
+
+/* Scan phase ------------------------------------------------------------- */
+.wheel-box[data-character="lucy"].lucy-scanning .impact-layer::before,
+.wheel-box[data-character="lucy"].lucy-scanning .impact-layer::after,
 .wheel-box[data-character="lucy"].lucy-scanning .wheel-shell::before{
   opacity:1;
-  background:
-    conic-gradient(
-      from 0deg,
-      transparent 0deg,
-      transparent 300deg,
-      rgba(130,226,188,.12) 320deg,
-      rgba(130,226,188,.88) 338deg,
-      rgba(126,131,216,.95) 351deg,
-      rgba(255,233,77,.95) 360deg
-    );
-  filter:blur(6px) saturate(1.15);
-  animation:lucyScanSweep .72s linear infinite;
 }
 
-.wheel-box[data-character="lucy"].lucy-locking .wheel-shell::before{
-  opacity:1;
-  inset:-16px;
-  background:
-    radial-gradient(
-      circle,
-      transparent 45%,
-      rgba(255,233,77,.32) 56%,
-      rgba(130,226,188,.24) 66%,
-      transparent 77%
-    );
-  animation:lucyLockPulse .42s ease-out infinite;
+.wheel-box[data-character="lucy"].lucy-scanning .impact-layer::before{
+  animation:lucyHudCounterSpin 5.6s linear infinite;
 }
 
-.wheel-box[data-character="lucy"].lucy-locking .wheel-shell::after{
-  opacity:1;
-  inset:-22px;
-  background:
-    conic-gradient(
-      from -90deg,
-      transparent 0deg,
-      transparent 352deg,
-      rgba(255,255,255,.96) 356deg,
-      rgba(255,233,77,1) 358deg,
-      rgba(130,226,188,.96) 360deg
-    );
-  filter:blur(2px);
-  animation:lucyLockBeam .5s ease-in-out infinite;
+.wheel-box[data-character="lucy"].lucy-scanning .impact-layer::after{
+  animation:lucyScannerSweep .82s linear infinite;
 }
 
-.wheel-box[data-character="lucy"].lucy-hacking .focus-grid,
-.wheel-box[data-character="lucy"].lucy-scanning .focus-grid{
-  opacity:1;
-  animation:lucyGrid .42s steps(5,end) infinite;
+.wheel-box[data-character="lucy"].lucy-scanning .wheel-shell::before{
+  animation:lucyInnerPulse .74s steps(4,end) infinite;
 }
 
-.wheel-box[data-character="lucy"].lucy-hacking .speed-lines,
-.wheel-box[data-character="lucy"].lucy-scanning .speed-lines{
-  opacity:1;
-  animation:lucyDataRush .14s steps(2,end) infinite;
-}
-
-.wheel-box[data-character="lucy"].lucy-hacking .spirit-orbit,
-.wheel-box[data-character="lucy"].lucy-scanning .spirit-orbit{
-  opacity:1;
-  animation:lucyOrbit 1.05s linear infinite;
-}
-
-.wheel-box[data-character="lucy"].lucy-hacking .ring-two,
-.wheel-box[data-character="lucy"].lucy-scanning .ring-two,
-.wheel-box[data-character="lucy"].lucy-locking .ring-two{
-  opacity:1;
-  animation:lucyRing calc(.72s - .42s * var(--charge)) linear infinite;
-}
-
-.wheel-box[data-character="lucy"].lucy-hacking .wheel-shell,
-.wheel-box[data-character="lucy"].lucy-scanning .wheel-shell,
-.wheel-box[data-character="lucy"].lucy-locking .wheel-shell{
+.wheel-box[data-character="lucy"].lucy-scanning .wheel-shell{
   box-shadow:
-    0 0 calc(12px + 30px * var(--charge)) rgba(130,226,188,.88),
-    0 0 calc(8px + 24px * var(--charge)) rgba(126,131,216,.68),
-    0 0 calc(5px + 18px * var(--charge)) rgba(255,233,77,.48),
+    0 0 calc(12px + 25px * var(--charge)) rgba(130,243,209,.82),
+    0 0 calc(8px + 18px * var(--charge)) rgba(120,135,255,.55),
     9px 9px 0 rgba(36,23,58,.47),
     inset 0 0 0 5px #ffeb91;
 }
 
-.wheel-box[data-character="lucy"].lucy-hacking .rim-lights i,
-.wheel-box[data-character="lucy"].lucy-scanning .rim-lights i,
-.wheel-box[data-character="lucy"].lucy-locking .rim-lights i{
-  animation:lucyLampBlink .35s steps(2,end) infinite;
+/* Lock phase ------------------------------------------------------------- */
+.wheel-box[data-character="lucy"].lucy-locking .impact-layer::before,
+.wheel-box[data-character="lucy"].lucy-locking .impact-layer::after,
+.wheel-box[data-character="lucy"].lucy-locking .wheel-shell::before,
+.wheel-box[data-character="lucy"].lucy-locking .wheel-shell::after{
+  opacity:1;
 }
 
-.wheel-box[data-character="lucy"] .rim-lights i:nth-child(3n+1){
-  background:#82e2bc;
+.wheel-box[data-character="lucy"].lucy-locking .impact-layer::before{
+  animation:lucyHudLock .5s steps(4,end) infinite;
 }
 
-.wheel-box[data-character="lucy"] .rim-lights i:nth-child(3n+2){
-  background:#7e83d8;
+.wheel-box[data-character="lucy"].lucy-locking .impact-layer::after{
+  animation:lucyBeamLock .46s ease-in-out infinite;
 }
 
-.wheel-box[data-character="lucy"] .rim-lights i:nth-child(3n){
-  background:#ffe94d;
+.wheel-box[data-character="lucy"].lucy-locking .wheel-shell::before{
+  animation:lucyInnerLock .36s ease-in-out infinite;
 }
 
+.wheel-box[data-character="lucy"].lucy-locking .wheel-shell::after{
+  animation:lucyBracketLock .42s steps(3,end) infinite;
+}
+
+.wheel-box[data-character="lucy"].lucy-locking .wheel-shell{
+  box-shadow:
+    0 0 42px rgba(130,243,209,.95),
+    0 0 27px rgba(120,135,255,.72),
+    0 0 14px rgba(255,230,92,.8),
+    9px 9px 0 rgba(36,23,58,.47),
+    inset 0 0 0 5px #ffeb91;
+}
+
+/* Confirm phase ---------------------------------------------------------- */
+.wheel-box[data-character="lucy"].lucy-confirmed .impact-layer::before,
+.wheel-box[data-character="lucy"].lucy-confirmed .wheel-shell::after{
+  opacity:1;
+}
+
+.wheel-box[data-character="lucy"].lucy-confirmed .impact-layer::before{
+  animation:lucyConfirmRing .58s steps(5,end) 2;
+}
+
+.wheel-box[data-character="lucy"].lucy-confirmed .wheel-shell::after{
+  animation:lucyConfirmBracket .52s steps(4,end) 2;
+}
+
+/* Dedicated rim lights -------------------------------------------------- */
+.wheel-box[data-character="lucy"] .rim-lights i{
+  background:var(--lucy-dark);
+  border-color:#1b2342;
+  box-shadow:none;
+}
+
+.wheel-box[data-character="lucy"].lucy-scanning .rim-lights i{
+  animation:lucyLampScan .64s steps(2,end) infinite!important;
+}
+
+.wheel-box[data-character="lucy"].lucy-locking .rim-lights i,
+.wheel-box[data-character="lucy"].lucy-confirmed .rim-lights i{
+  animation:lucyLampLock .3s steps(2,end) infinite!important;
+}
+
+.wheel-box[data-character="lucy"] .rim-lights i:nth-child(1){animation-delay:0s!important}
+.wheel-box[data-character="lucy"] .rim-lights i:nth-child(2){animation-delay:.08s!important}
+.wheel-box[data-character="lucy"] .rim-lights i:nth-child(3){animation-delay:.16s!important}
+.wheel-box[data-character="lucy"] .rim-lights i:nth-child(4){animation-delay:.24s!important}
+.wheel-box[data-character="lucy"] .rim-lights i:nth-child(5){animation-delay:.32s!important}
+.wheel-box[data-character="lucy"] .rim-lights i:nth-child(6){animation-delay:.40s!important}
+.wheel-box[data-character="lucy"] .rim-lights i:nth-child(7){animation-delay:.48s!important}
+.wheel-box[data-character="lucy"] .rim-lights i:nth-child(8){animation-delay:.56s!important}
+
+.wheel-box[data-character="lucy"].lucy-scanning .pointer{
+  border-top-color:var(--lucy-cyan);
+  filter:drop-shadow(0 0 8px var(--lucy-cyan)) drop-shadow(4px 4px 0 var(--ink));
+}
+
+.wheel-box[data-character="lucy"].lucy-locking .pointer,
+.wheel-box[data-character="lucy"].lucy-confirmed .pointer{
+  border-top-color:var(--lucy-yellow);
+  filter:drop-shadow(0 0 10px var(--lucy-yellow)) drop-shadow(4px 4px 0 var(--ink));
+}
+
+.wheel-box[data-character="lucy"].lucy-scanning .hub,
+.wheel-box[data-character="lucy"].lucy-locking .hub,
+.wheel-box[data-character="lucy"].lucy-confirmed .hub{
+  background:#121a34;
+  box-shadow:
+    inset 0 0 0 7px rgba(130,243,209,.55),
+    0 0 16px rgba(130,243,209,.7);
+}
+
+/* Replace generic reactions with Lucy-only responses -------------------- */
 .wheel-box[data-character="lucy"].reaction-rare .pixel-helper{
-  filter:
-    drop-shadow(0 0 14px #82e2bc)
-    drop-shadow(0 0 12px #7e83d8)
-    drop-shadow(0 0 8px #ffe94d)
-    drop-shadow(4px 4px 0 rgba(36,23,58,.25));
+  animation:lucyReactionRare .5s steps(4,end) 2!important;
 }
 
-.wheel-box[data-character="lucy"].reaction-normal .lucy-scan-nodes{
-  animation:lucyNodeConfirm .45s steps(2,end) 3;
+.wheel-box[data-character="lucy"].reaction-normal .pixel-helper{
+  animation:lucyReactionNormal .46s steps(3,end) 2!important;
 }
 
-.wheel-box[data-character="lucy"].reaction-rare .lucy-signal{
-  animation:lucySignalBurst .38s steps(3,end) 5;
+.wheel-box[data-character="lucy"].reaction-retry .pixel-helper{
+  animation:lucyReactionRetry .42s steps(3,end) 2!important;
 }
 
-@keyframes lucyHairIdle{
-  50%{transform:translateY(1px) skewX(-2deg)}
+.wheel-box[data-character="lucy"].reaction-miss .pixel-helper{
+  animation:lucyReactionMiss .64s steps(3,end) 1!important;
 }
 
-@keyframes lucyHairBack{
-  50%{transform:translateY(2px) skewX(2deg)}
+/* Keyframes -------------------------------------------------------------- */
+@keyframes lucyHairIdle{50%{transform:translateY(1px) skewX(-1deg)}}
+@keyframes lucyHairBack{50%{transform:translateY(2px) skewX(1deg)}}
+@keyframes lucyNodeIdle{50%{opacity:.35;transform:translateY(-2px)}}
+@keyframes lucySignalIdle{50%{opacity:.45;transform:scale(.94)}}
+@keyframes lucyBlink{0%,45%,48%,100%{transform:translateY(0)}46%,47%{transform:translateY(1px) scaleY(.97)}}
+@keyframes lucySleeveIdle{50%{transform:translateY(1px)}}
+
+@keyframes lucyJackIn{
+  0%{transform:translate(30px,5px);opacity:0}
+  55%{transform:translate(0,-8px);opacity:1}
+  100%{transform:translate(-8px,0)}
 }
 
-@keyframes lucyNodePulse{
-  50%{opacity:.3;transform:translateY(-2px)}
+@keyframes lucyLinkHold{50%{transform:translate(-8px,-3px)}}
+@keyframes lucyHackArm{0%,100%{transform:rotate(-18deg)}50%{transform:rotate(25deg)}}
+@keyframes lucyBackArm{0%,100%{transform:rotate(8deg)}50%{transform:rotate(22deg)}}
+@keyframes lucyNodeActive{50%{opacity:1;transform:translate(2px,-3px) scale(1.12)}}
+@keyframes lucyBootSignal{50%{filter:brightness(1.45)}}
+
+@keyframes lucyHudCounterSpin{
+  from{transform:translate(-50%,-50%) rotate(0)}
+  to{transform:translate(-50%,-50%) rotate(-360deg)}
 }
 
-@keyframes lucyNodeFast{
-  50%{opacity:1;transform:translate(3px,-3px) scale(1.12)}
-}
-
-@keyframes lucySignalIdle{
-  50%{opacity:.45;transform:scale(.94)}
-}
-
-@keyframes lucyBlink{
-  0%,44%,47%,100%{transform:translateY(0)}
-  45%,46%{transform:translateY(1px) scaleY(.97)}
-}
-
-@keyframes lucySleeveIdle{
-  50%{transform:translateY(1px) rotate(1deg)}
-}
-
-@keyframes lucyEnter{
-  0%{transform:translate(38px,6px);opacity:0}
-  58%{transform:translate(2px,-12px);opacity:1}
-  100%{transform:translate(-10px,0)}
-}
-
-@keyframes lucyHover{
-  50%{transform:translate(-10px,-6px)}
-}
-
-@keyframes lucyHackArm{
-  0%,100%{transform:rotate(-24deg)}
-  50%{transform:rotate(32deg)}
-}
-
-@keyframes lucyBackArm{
-  0%,100%{transform:rotate(12deg)}
-  50%{transform:rotate(28deg)}
-}
-
-@keyframes lucyBootPulse{
-  50%{transform:translateY(-2px);filter:brightness(1.35)}
-}
-
-@keyframes lucyGrid{
-  0%{transform:translate(-50%,-50%) rotate(0);opacity:.25}
-  50%{transform:translate(-50%,-50%) rotate(3deg) scale(1.04);opacity:.8}
-  100%{transform:translate(-50%,-50%) rotate(0);opacity:.25}
-}
-
-@keyframes lucyDataRush{
-  50%{transform:translateX(20px);opacity:.2}
-}
-
-@keyframes lucyOrbit{
-  to{transform:translate(-50%,-50%) rotate(360deg) scale(1.05)}
-}
-
-@keyframes lucyRing{
+@keyframes lucyScannerSweep{
+  from{transform:translate(-50%,-50%) rotate(0)}
   to{transform:translate(-50%,-50%) rotate(360deg)}
 }
 
-@keyframes lucyScanSweep{
-  from{transform:rotate(0deg)}
-  to{transform:rotate(360deg)}
+@keyframes lucyInnerPulse{50%{opacity:.45;transform:scale(.985)}}
+@keyframes lucyHudLock{50%{filter:drop-shadow(0 0 13px rgba(255,230,92,.95));transform:translate(-50%,-50%) scale(1.015)}}
+@keyframes lucyBeamLock{50%{opacity:.48;transform:translate(-50%,-50%) rotate(3deg)}}
+@keyframes lucyInnerLock{50%{opacity:.5;transform:scale(.96)}}
+@keyframes lucyBracketLock{50%{transform:scale(.88);filter:drop-shadow(0 0 13px rgba(255,230,92,1))}}
+@keyframes lucyConfirmRing{50%{transform:translate(-50%,-50%) scale(1.08);filter:drop-shadow(0 0 18px rgba(130,243,209,1))}}
+@keyframes lucyConfirmBracket{50%{transform:scale(.82);opacity:.45}}
+
+@keyframes lucyLampScan{
+  0%,65%,100%{background:#121a34;box-shadow:none}
+  66%,82%{background:var(--lucy-cyan);box-shadow:0 0 10px var(--lucy-cyan)}
 }
 
-@keyframes lucyLockPulse{
-  0%{transform:scale(.95);opacity:.35}
-  50%{transform:scale(1.04);opacity:1}
-  100%{transform:scale(1.12);opacity:.12}
+@keyframes lucyLampLock{
+  0%,100%{background:var(--lucy-cyan);box-shadow:0 0 8px var(--lucy-cyan)}
+  50%{background:var(--lucy-yellow);box-shadow:0 0 13px var(--lucy-yellow)}
 }
 
-@keyframes lucyLockBeam{
-  0%,100%{transform:scale(1);opacity:.9}
-  50%{transform:scale(1.04);opacity:1}
-}
-
-@keyframes lucyLampBlink{
-  0%,100%{filter:brightness(.8);opacity:.75}
-  50%{filter:brightness(1.45);opacity:1}
-}
-
-@keyframes lucyNodeConfirm{
-  50%{transform:translateY(-8px) scale(1.25);opacity:1}
-}
-
-@keyframes lucySignalBurst{
-  50%{transform:scale(1.25);opacity:1}
-}
+@keyframes lucyReactionRare{50%{transform:translateY(-10px);filter:brightness(1.25)}}
+@keyframes lucyReactionNormal{50%{transform:translateY(-4px)}}
+@keyframes lucyReactionRetry{50%{transform:translateY(-5px) rotate(-2deg)}}
+@keyframes lucyReactionMiss{45%{transform:translateY(4px);opacity:.82}}
