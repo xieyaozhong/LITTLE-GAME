@@ -1,4 +1,4 @@
-name: Add adjective timing mechanic
+name: Expand detailed flavor wheel
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Add tasting adjective timing
+      - name: Add detailed flavors and looping ring
         shell: python
         run: |
           from pathlib import Path
@@ -24,92 +24,49 @@ jobs:
           path = Path("index.html")
           text = path.read_text(encoding="utf-8")
 
-          if 'id="tasteWord"' in text and 'wordSets=' in text:
-              print("Adjective timing mechanic already installed")
+          if (
+              'cat:"果香",detail:"葡萄柚"' in text
+              and 'Math.floor(elapsed/430)%words.length' in text
+              and 'animation:charge 1.45s ease-in-out infinite alternate' in text
+          ):
+              print("Detailed looping flavor wheel already installed")
               raise SystemExit(0)
 
           def replace_once(old, new, label):
               global text
               if old not in text:
-                  raise SystemExit(f"Missing pattern for {label}: {old[:100]}")
+                  raise SystemExit(f"Missing pattern for {label}: {old[:120]}")
               text = text.replace(old, new, 1)
 
           replace_once(
-              '.scene{position:relative;display:grid;place-items:center;width:100%;min-height:310px;user-select:none}.ringbox{',
-              '.scene{position:relative;display:grid;place-items:center;width:100%;min-height:310px;user-select:none}.taste-word{position:absolute;z-index:8;top:16px;left:50%;transform:translateX(-50%);min-width:190px;padding:10px 14px;text-align:center;font-size:20px;font-weight:bold;color:#ead2ad;background:#1a100d;border:3px solid #8f5b3d;box-shadow:4px 4px 0 #100906;transition:transform .12s,background .12s,color .12s;pointer-events:none}.taste-word.active{color:#fff2cf;transform:translateX(-50%) scale(1.06);animation:wordPop .22s steps(2)}.taste-word.best{color:#211511;background:#ffd56a;border-color:#fff2cf;box-shadow:0 0 0 4px rgba(255,213,106,.2),5px 5px 0 #100906}@keyframes wordPop{50%{transform:translateX(-50%) scale(1.16)}}.ringbox{',
-              "word CSS",
+              '.pressing .charge{opacity:1;animation:charge 1.7s linear forwards}',
+              '.pressing .charge{opacity:1;animation:charge 1.45s ease-in-out infinite alternate}',
+              "looping charge ring",
           )
 
           replace_once(
-              '<div class="scene" id="scene"><div class="ringbox">',
-              '<div class="scene" id="scene"><div class="taste-word" id="tasteWord">按住探索風味</div><div class="ringbox">',
-              "word display",
+              '.taste-word.active{',
+              '.taste-word span{display:block}.taste-word small{display:block;margin-top:4px;font-size:12px;line-height:1.35;letter-spacing:1px;color:#e2c69c}.taste-word.best small{color:#3a241c}.taste-word.active{',
+              "detail word styling",
           )
 
-          replace_once(
-              '短按偏向明亮果香，長按偏向厚實醇香。',
-              '按住時形容詞會依序變化，看到最適合的詞就放開。',
-              "initial instructions",
-          )
-
-          replace_once(
-              'toast:$("toast")},stages=',
-              'toast:$("toast"),word:$("tasteWord")},stages=',
-              "word element binding",
-          )
-
-          replace_once(
-              '}],S={started:false',
-              '}],wordSets=[[{t:"水感",s:20},{t:"清新",s:52},{t:"柑橘",s:78},{t:"花香",s:100},{t:"蜂蜜",s:86},{t:"熟果",s:55},{t:"過熟",s:22}],[{t:"單薄",s:20},{t:"輕盈",s:52},{t:"滑順",s:80},{t:"平衡",s:100},{t:"焦糖",s:86},{t:"濃郁",s:58},{t:"苦澀",s:20}],[{t:"短暫",s:22},{t:"乾淨",s:56},{t:"甘甜",s:82},{t:"回甘",s:100},{t:"綿長",s:88},{t:"煙燻",s:55},{t:"乾澀",s:18}]],S={started:false',
-              "word sequences",
-          )
-
-          replace_once(
-              '<span>短按：明亮果香　｜　長按：醇厚甜感</span>',
-              '<span>按住觀察形容詞，出現金色「現在放開」時立即鬆手。</span>',
-              "stage instructions",
-          )
-
-          replace_once(
-              'E.hold.textContent="按住品嚐・放開記錄";',
-              'E.hold.textContent="按住品嚐・看到最佳詞放開";',
-              "button label",
-          )
+          old_sets = 'wordSets=[[{t:"水感",s:20},{t:"清新",s:52},{t:"柑橘",s:78},{t:"花香",s:100},{t:"蜂蜜",s:86},{t:"熟果",s:55},{t:"過熟",s:22}],[{t:"單薄",s:20},{t:"輕盈",s:52},{t:"滑順",s:80},{t:"平衡",s:100},{t:"焦糖",s:86},{t:"濃郁",s:58},{t:"苦澀",s:20}],[{t:"短暫",s:22},{t:"乾淨",s:56},{t:"甘甜",s:82},{t:"回甘",s:100},{t:"綿長",s:88},{t:"煙燻",s:55},{t:"乾澀",s:18}]]'
+          new_sets = 'wordSets=[[{cat:"水感",detail:"稀薄",s:18},{cat:"果香",detail:"青蘋果",s:52},{cat:"果香",detail:"檸檬",s:70},{cat:"果香",detail:"葡萄柚",s:86},{cat:"果香",detail:"草莓",s:94},{cat:"花香",detail:"茉莉",s:100},{cat:"花香",detail:"橙花",s:96},{cat:"甜香",detail:"蜂蜜",s:88},{cat:"甜香",detail:"黑糖",s:74},{cat:"堅果",detail:"榛果",s:58},{cat:"發酵香",detail:"紅酒",s:40},{cat:"過熟",detail:"熟香蕉",s:18}],[{cat:"單薄",detail:"茶水感",s:18},{cat:"輕盈",detail:"紅茶感",s:50},{cat:"酸質",detail:"檸檬酸",s:70},{cat:"酸質",detail:"莓果酸",s:84},{cat:"甜感",detail:"蜂蜜",s:92},{cat:"口感",detail:"絲滑",s:100},{cat:"平衡",detail:"酸甜均衡",s:96},{cat:"醇厚",detail:"奶油",s:88},{cat:"醇厚",detail:"黑巧克力",s:74},{cat:"烘焙",detail:"焦糖",s:58},{cat:"苦感",detail:"可可苦",s:36},{cat:"苦澀",detail:"藥草",s:16}],[{cat:"短促",detail:"快速消散",s:18},{cat:"乾淨",detail:"紅茶尾韻",s:54},{cat:"果甜",detail:"莓果回甜",s:76},{cat:"糖香",detail:"焦糖回甘",s:90},{cat:"回甘",detail:"蜂蜜甜感",s:100},{cat:"餘韻",detail:"可可綿長",s:96},{cat:"餘韻",detail:"堅果悠長",s:88},{cat:"香料",detail:"肉桂",s:72},{cat:"煙燻",detail:"木質",s:54},{cat:"酒香",detail:"發酵感",s:40},{cat:"乾澀",detail:"茶單寧",s:24},{cat:"苦澀",detail:"焦苦",s:14}]]'
+          replace_once(old_sets, new_sets, "detailed word sets")
 
           press_pattern = re.compile(r'function press\(e\)\{.*?\}function release\(e\)\{', re.S)
-          new_press = '''function press(e){e.preventDefault();window.getSelection?.()?.removeAllRanges();if(!S.started){start();return}if(S.done||S.down)return;S.down=true;S.t0=performance.now();S.wordIndex=-1;S.word="";S.wordScore=0;E.scene.classList.add("pressing");E.hold.classList.add("down");E.word.classList.add("active");navigator.vibrate&&navigator.vibrate(18);function bar(){if(!S.down)return;let elapsed=performance.now()-S.t0;E.hold.style.setProperty("--p",`${clamp(elapsed/22,0,100)}%`);let words=wordSets[si()],i=Math.min(words.length-1,Math.floor(elapsed/310)),item=words[i];if(i!==S.wordIndex){S.wordIndex=i;S.word=item.t;S.wordScore=item.s;E.word.textContent=item.s>=95?`✨ ${item.t}｜現在放開！`:item.t;E.word.classList.toggle("best",item.s>=95);tone(330+i*42,.035);if(navigator.vibrate)navigator.vibrate(item.s>=95?28:8)}requestAnimationFrame(bar)}bar()}function release(e){'''
+          new_press = '''function press(e){e.preventDefault();window.getSelection?.()?.removeAllRanges();if(!S.started){start();return}if(S.done||S.down)return;S.down=true;S.t0=performance.now();S.wordIndex=-1;S.word="";S.wordScore=0;E.scene.classList.add("pressing");E.hold.classList.add("down");E.word.classList.add("active");navigator.vibrate&&navigator.vibrate(18);function bar(){if(!S.down)return;let elapsed=performance.now()-S.t0,ringPhase=(elapsed%2900)/2900,ringProgress=ringPhase<.5?ringPhase*200:(1-ringPhase)*200;E.hold.style.setProperty("--p",`${ringProgress}%`);let words=wordSets[si()],i=Math.floor(elapsed/430)%words.length,item=words[i];if(i!==S.wordIndex){S.wordIndex=i;S.word=`${item.cat}・${item.detail}`;S.wordScore=item.s;E.word.innerHTML=item.s>=95?`<span>✨ ${item.cat}</span><small>${item.detail}｜現在放開！</small>`:`<span>${item.cat}</span><small>${item.detail}</small>`;E.word.classList.toggle("best",item.s>=95);tone(330+i*28,.035);if(navigator.vibrate)navigator.vibrate(item.s>=95?28:8)}requestAnimationFrame(bar)}bar()}function release(e){'''
           text, count = press_pattern.subn(new_press, text, count=1)
           if count != 1:
               raise SystemExit("Could not replace press handler")
 
-          replace_once(
-              'let d=clamp(performance.now()-S.t0,70,2400),a=clamp(1-Math.abs(S.scale-.95)/.75,0,1);S.inputs.push({d,a,stage:si()});',
-              'let d=clamp(performance.now()-S.t0,70,2400),ring=clamp(1-Math.abs(S.scale-.95)/.75,0,1),wordScore=S.wordScore||20,a=clamp(ring*.55+wordScore/100*.45,0,1);S.inputs.push({d,a,stage:si(),word:S.word,wordScore});E.word.classList.remove("active","best");E.word.textContent=`抓到：${S.word}`;',
-              "release scoring",
+          text = text.replace(
+              '按住時形容詞會依序變化，看到最適合的詞就放開。',
+              '按住查看風味大類與細項；光圈與詞語會持續循環。',
           )
-
-          replace_once(
-              'toast(`${type}・${hit}`);',
-              'toast(`${S.word}・${hit}`);',
-              "release message",
-          )
-
-          replace_once(
-              'setTimeout(()=>{ui();toast(`進入 ${stage().n}`)},300)',
-              'setTimeout(()=>{ui();E.word.textContent="按住探索風味";toast(`進入 ${stage().n}`)},300)',
-              "stage reset",
-          )
-
-          replace_once(
-              'if(m.順口度>80)flavors.push("絲滑");flavors=[...new Set(flavors)].slice(0,4);',
-              'if(m.順口度>80)flavors.push("絲滑");let chosen=S.inputs.map(x=>x.word).filter(Boolean);flavors=[...new Set([...chosen,...flavors])].slice(0,4);',
-              "result adjective tags",
-          )
-
-          replace_once(
-              'E.hint.innerHTML="<b>按下「開始品飲」</b><span>短按偏向明亮果香，長按偏向厚實醇香。</span>";ui();scrollTo',
-              'E.hint.innerHTML="<b>按下「開始品飲」</b><span>按住時形容詞會依序變化，看到最適合的詞就放開。</span>";E.word.textContent="按住探索風味";E.word.classList.remove("active","best");ui();scrollTo',
-              "reset display",
+          text = text.replace(
+              '按住觀察形容詞，出現金色「現在放開」時立即鬆手。',
+              '風味與光圈會反覆循環，出現金色提示時放開。',
           )
 
           path.write_text(text, encoding="utf-8")
@@ -120,6 +77,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
           if ! git diff --cached --quiet; then
-            git commit -m "Add adjective timing tasting mechanic"
+            git commit -m "Expand detailed flavor wheel and looping ring"
             git push
           fi
