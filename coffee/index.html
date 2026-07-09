@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="difficulty.css?v=1">
 <link rel="stylesheet" href="result-feedback.css?v=1">
 <link rel="stylesheet" href="result-unified.css?v=1">
+<link rel="stylesheet" href="result-difficulty.css?v=1">
 </head>
 <body>
 <main class="app mode-simple">
@@ -49,22 +50,36 @@
 </section>
 <section class="panel result hidden" id="result">
 <div class="result-shell">
+<div class="result-mode-banner" id="resultModeBanner">
+<div class="result-mode-icon" id="resultModeIcon">🌱</div>
+<div class="result-mode-copy"><b id="resultModeTitle">簡單版結算</b><small id="resultModeDesc">依照難度整合本次品嚐結果。</small></div>
+<div class="result-mode-level" id="resultModeLevel">3 STEP</div>
+</div>
 <div class="result-hero">
 <div class="result-kicker">YOUR PIXEL COFFEE PROFILE</div>
 <h2 id="title"></h2>
 <div class="quote" id="quote"></div>
 </div>
+<div class="result-overview" id="resultOverview"></div>
 <div class="result-stack">
-<section class="result-block">
-<div class="block-heading"><span class="block-index">01</span><div class="block-copy"><b>風味指標</b><small>六項感官分數</small></div></div>
+<section class="result-block" id="metricBlock">
+<div class="block-heading"><span class="block-index">01</span><div class="block-copy"><b>風味指標</b><small>依模式顯示感官分數</small></div></div>
 <div class="metrics" id="metrics"></div>
 </section>
-<section class="result-block">
-<div class="block-heading"><span class="block-index">02</span><div class="block-copy"><b>風味輪廓</b><small>主要家族與三階段紀錄</small></div></div>
+<section class="result-block" id="insightBlock">
+<div class="block-heading"><span class="block-index">02</span><div class="block-copy"><b>難度洞察</b><small>依步驟深度產生判讀</small></div></div>
+<div class="result-insight" id="modeInsight"></div>
+</section>
+<section class="result-block" id="flavorBlock">
+<div class="block-heading"><span class="block-index">03</span><div class="block-copy"><b>風味輪廓</b><small>主要家族與三階段紀錄</small></div></div>
 <div class="flavor-summary" id="flavorSummary"></div>
 </section>
-<section class="result-block">
-<div class="block-heading"><span class="block-index">03</span><div class="block-copy"><b>本次捕捉</b><small>所有步驟實際選到的細項</small></div></div>
+<section class="result-block" id="journeyBlock">
+<div class="block-heading"><span class="block-index">04</span><div class="block-copy"><b>九步品嚐時間線</b><small>大師版完整動作與選擇</small></div></div>
+<div class="journey-list" id="journeyList"></div>
+</section>
+<section class="result-block" id="captureBlock">
+<div class="block-heading"><span class="block-index">05</span><div class="block-copy"><b>本次捕捉</b><small>所有步驟實際選到的細項</small></div></div>
 <div class="tags" id="tags"></div>
 </section>
 </div>
@@ -83,5 +98,6 @@
 <script src="game.js?v=5"></script>
 <script src="result-feedback.js?v=2"></script>
 <script src="avatar-feedback.js?v=2"></script>
+<script src="result-difficulty.js?v=1"></script>
 </body>
 </html>
