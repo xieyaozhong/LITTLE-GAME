@@ -7,122 +7,144 @@
     status: $("status"), stage: $("stage"), desc: $("desc"), count: $("count"), game: $("game"), scene: $("scene"),
     word: $("word"), particles: $("particles"), pulse: $("pulse"), hint: $("hint"), hold: $("hold"),
     actionGuide: $("actionGuide"), actionIcon: $("actionIcon"), actionStep: $("actionStep"), actionText: $("actionText"), actionTip: $("actionTip"),
-    result: $("result"), title: $("title"), metrics: $("metrics"), tags: $("tags"), quote: $("quote"),
-    canvas: $("canvas"), toast: $("toast"), download: $("download"), restart: $("restart")
+    result: $("result"), title: $("title"), metrics: $("metrics"), tags: $("tags"), quote: $("quote"), canvas: $("canvas"),
+    toast: $("toast"), download: $("download"), restart: $("restart")
   };
 
   const phaseInfo = [
-    { name: "聞香", color: "#ff8aa0", speed: 1450 },
-    { name: "啜飲", color: "#8fe3c2", speed: 1750 },
-    { name: "餘韻", color: "#ffd56a", speed: 2050 }
+    { name: "聞香", speed: 1450 },
+    { name: "啜飲", speed: 1750 },
+    { name: "餘韻", speed: 2050 }
   ];
+
+  const o = (cat, detail, score, fx) => ({ cat, detail, score, fx });
+  const groups = {
+    simpleAroma: [
+      o("果香", "清新水果", 82, "fruit"), o("花香", "柔和花朵", 88, "floral"), o("甜香", "蜂蜜焦糖", 86, "sweet"),
+      o("堅果", "榛果杏仁", 68, "body"), o("發酵香", "紅酒果乾", 52, "mature"), o("清新", "明亮乾淨", 78, "muted"),
+      o("香氣強度", "輕柔", 64, "muted"), o("香氣強度", "濃郁", 84, "body")
+    ],
+    simpleSip: [
+      o("酸質", "明亮", 84, "fruit"), o("酸質", "柔和", 76, "fruit"), o("甜感", "清甜", 88, "sweet"),
+      o("苦感", "柔和可可", 58, "muted"), o("口感", "輕盈", 66, "muted"), o("口感", "滑順", 92, "body"),
+      o("醇厚度", "厚實", 86, "body"), o("平衡", "酸甜均衡", 94, "body")
+    ],
+    simpleFinish: [
+      o("回甘", "蜂蜜甜感", 94, "sweet"), o("果甜", "水果回甜", 86, "fruit"), o("餘韻", "可可綿長", 90, "body"),
+      o("餘韻", "花香回返", 92, "floral"), o("餘韻長度", "短促", 34, "muted"), o("餘韻長度", "綿長", 94, "body"),
+      o("乾淨度", "乾淨收尾", 84, "muted"), o("乾澀", "茶單寧", 38, "muted")
+    ],
+    aromaFirst: [
+      o("果香", "柑橘調", 84, "fruit"), o("果香", "莓果調", 90, "fruit"), o("果香", "核果調", 86, "fruit"),
+      o("果香", "熱帶水果", 78, "fruit"), o("花香", "白花調", 94, "floral"), o("花香", "玫瑰調", 88, "floral"),
+      o("甜香", "蜂蜜調", 88, "sweet"), o("甜香", "黑糖調", 78, "sweet"), o("堅果", "榛果調", 70, "body"),
+      o("堅果", "杏仁調", 66, "body"), o("清新", "草本清新", 58, "muted"), o("香氣強度", "鮮明", 90, "fruit")
+    ],
+    aromaSwirl: [
+      o("果香", "佛手柑", 94, "fruit"), o("果香", "白葡萄", 90, "fruit"), o("果香", "水蜜桃", 92, "fruit"),
+      o("果香", "覆盆子", 96, "fruit"), o("果香", "黑醋栗", 88, "fruit"), o("花香", "茉莉", 100, "floral"),
+      o("花香", "橙花", 96, "floral"), o("花香", "洋甘菊", 86, "floral"), o("甜香", "香草", 84, "sweet"),
+      o("甜香", "黑糖", 80, "sweet"), o("發酵香", "紅酒", 58, "mature"), o("發酵香", "蘭姆酒", 54, "mature"),
+      o("過熟感", "熟香蕉", 30, "muted"), o("香氣強度", "濃郁", 86, "body")
+    ],
+    acidSweet: [
+      o("酸質", "檸檬酸", 76, "fruit"), o("酸質", "柳橙酸", 82, "fruit"), o("酸質", "青蘋果酸", 86, "fruit"),
+      o("酸質", "白葡萄酸", 90, "fruit"), o("酸質", "莓果酸", 88, "fruit"), o("酸質", "百香果酸", 82, "fruit"),
+      o("甜感", "蜂蜜", 94, "sweet"), o("甜感", "楓糖", 92, "sweet"), o("甜感", "蔗糖", 88, "sweet"),
+      o("甜感", "黑糖", 86, "sweet"), o("甜感", "太妃糖", 90, "sweet"), o("平衡", "酸甜均衡", 96, "body")
+    ],
+    textureBody: [
+      o("口感", "絲滑", 100, "body"), o("口感", "奶油感", 96, "body"), o("口感", "果汁感", 90, "fruit"),
+      o("口感", "糖漿感", 92, "sweet"), o("口感", "氣泡感", 82, "fruit"), o("口感", "水潤", 72, "muted"),
+      o("口感", "粗糙", 34, "muted"), o("醇厚度", "輕盈", 64, "muted"), o("醇厚度", "中等", 80, "body"),
+      o("醇厚度", "厚實", 94, "body"), o("醇厚", "牛奶巧克力", 92, "body"), o("醇厚", "黑巧克力", 84, "body"),
+      o("醇厚", "可可脂", 88, "body"), o("平衡", "柔和圓潤", 94, "body")
+    ],
+    finishImmediate: [
+      o("果甜", "蘋果回甜", 76, "fruit"), o("果甜", "葡萄回甜", 84, "fruit"), o("果甜", "莓果回甜", 88, "fruit"),
+      o("果甜", "桃子回甜", 90, "fruit"), o("糖香", "焦糖回甘", 94, "sweet"), o("糖香", "黑糖回甘", 90, "sweet"),
+      o("糖香", "楓糖尾韻", 92, "sweet"), o("回甘", "蜂蜜甜感", 100, "sweet"), o("回甘", "蔗糖甜感", 96, "sweet"),
+      o("餘韻", "可可初現", 88, "body"), o("花香", "茉莉回香", 98, "floral"), o("柑橘", "佛手柑回香", 92, "fruit")
+    ],
+    finishDeep: [
+      o("餘韻長度", "短促", 30, "muted"), o("餘韻長度", "中等", 72, "body"), o("餘韻長度", "綿長", 96, "body"),
+      o("餘韻", "可可綿長", 96, "body"), o("餘韻", "堅果悠長", 92, "body"), o("餘韻", "奶油柔順", 94, "body"),
+      o("餘韻", "花香回返", 98, "floral"), o("香料", "肉桂", 78, "mature"), o("香料", "丁香", 68, "mature"),
+      o("香料", "豆蔻", 74, "mature"), o("酒香", "紅酒發酵", 60, "mature"), o("酒香", "威士忌桶", 64, "mature"),
+      o("酒香", "蘭姆葡萄", 66, "mature"), o("煙燻", "雪松木", 56, "mature"), o("煙燻", "烤木質", 50, "mature"),
+      o("乾澀", "茶單寧", 34, "muted"), o("乾淨度", "乾淨收尾", 88, "muted"), o("乾淨度", "混濁殘留", 24, "muted")
+    ],
+    cleanliness: [
+      o("乾淨度", "明亮清晰", 92, "fruit"), o("乾淨度", "純淨無雜味", 96, "floral"), o("乾淨度", "柔和乾淨", 84, "muted"),
+      o("香氣強度", "輕柔", 66, "muted"), o("香氣強度", "鮮明", 92, "fruit"), o("香氣強度", "濃郁", 86, "body"),
+      o("發酵感", "活潑", 58, "mature"), o("過熟感", "悶熟", 28, "muted"), o("雜味", "木紙感", 22, "muted")
+    ],
+    acidTemperature: [
+      o("溫度感", "偏熱", 58, "mature"), o("溫度感", "溫暖", 82, "sweet"), o("溫度感", "適中", 92, "body"),
+      o("溫度感", "微涼", 68, "muted"), o("酸質形態", "明亮", 92, "fruit"), o("酸質形態", "柔和", 82, "fruit"),
+      o("酸質形態", "圓潤", 88, "body"), o("酸質形態", "尖銳", 42, "muted"),
+      o("酸質", "檸檬酸", 76, "fruit"), o("酸質", "柳橙酸", 82, "fruit"), o("酸質", "青蘋果酸", 86, "fruit"),
+      o("酸質", "白葡萄酸", 90, "fruit"), o("酸質", "莓果酸", 88, "fruit"), o("酸質", "百香果酸", 82, "fruit")
+    ],
+    retronasalSweet: [
+      o("鼻後香", "柑橘回升", 88, "fruit"), o("鼻後香", "莓果回升", 90, "fruit"), o("鼻後香", "花香回升", 96, "floral"),
+      o("鼻後香", "可可回升", 84, "body"), o("甜感", "蜂蜜", 94, "sweet"), o("甜感", "楓糖", 92, "sweet"),
+      o("甜感", "蔗糖", 88, "sweet"), o("甜感", "黑糖", 86, "sweet"), o("甜感", "太妃糖", 90, "sweet"),
+      o("甜感強度", "清甜", 84, "sweet"), o("甜感強度", "圓潤", 92, "sweet"), o("甜感強度", "厚甜", 88, "body")
+    ],
+    representative: [
+      o("代表風格", "清新明亮", 92, "fruit"), o("代表風格", "花香優雅", 96, "floral"), o("代表風格", "蜂蜜甜潤", 94, "sweet"),
+      o("代表風格", "果汁多汁", 90, "fruit"), o("代表風格", "絲滑圓潤", 96, "body"), o("代表風格", "可可醇厚", 92, "body"),
+      o("代表風格", "酒香成熟", 70, "mature"), o("代表風格", "香料深邃", 74, "mature"), o("代表風格", "木質沉穩", 62, "mature"),
+      o("代表風格", "茶感乾淨", 82, "muted"), o("代表風格", "酸甜平衡", 98, "body"), o("代表風格", "餘韻悠長", 96, "body")
+    ]
+  };
 
   const modes = {
     simple: {
       label: "簡單版", total: 3, cycle: 560,
-      note: "每個階段只做一個核心動作，風味選項以明顯、容易聯想的大類為主。",
+      note: "每一步只出現該感官最容易理解的形容詞，快速完成聞香、啜飲與餘韻。",
       steps: [
-        { phase: 0, icon: "👃", action: "把杯子靠近鼻尖，安靜聞香 2–3 秒", tip: "先不要晃杯，選第一個讓你有感覺的香氣。" },
-        { phase: 1, icon: "☕", action: "小口啜飲，讓咖啡鋪滿舌面", tip: "先感受酸、甜、苦與厚薄，不用分析太久。" },
-        { phase: 2, icon: "⏳", action: "吞下後停一下，感受留下的味道", tip: "選出嘴裡最後還存在的回甘或餘韻。" }
+        { phase: 0, sense: "嗅覺・香氣大類", icon: "👃", action: "把杯子靠近鼻尖，安靜聞香 2–3 秒", tip: "只選你第一時間聞到的香氣方向。", options: groups.simpleAroma },
+        { phase: 1, sense: "味覺・酸甜苦與口感", icon: "☕", action: "小口啜飲，讓咖啡鋪滿舌面", tip: "從酸、甜、苦、滑順與厚薄中選一個最明顯的感受。", options: groups.simpleSip },
+        { phase: 2, sense: "餘韻・回甘與長度", icon: "⏳", action: "吞下後停一下，感受留下的味道", tip: "只選最後仍留在口中的回甘、香氣或長短。", options: groups.simpleFinish }
       ]
     },
     expert: {
       label: "專家版", total: 6, cycle: 440,
-      note: "每階段分成兩個動作，加入更多水果、甜感、質地與香料細項。",
+      note: "每個動作都有獨立感官詞庫，香氣、酸甜、質地與餘韻不再混在一起。",
       steps: [
-        { phase: 0, icon: "👃", action: "先不晃杯，聞第一層香氣", tip: "辨認最直接的水果、花或堅果氣味。" },
-        { phase: 0, icon: "🌀", action: "輕晃杯子，再聞一次香氣變化", tip: "找出晃動後才出現的甜香、發酵香或更細水果。" },
-        { phase: 1, icon: "☕", action: "小口啜飲，先找酸與甜", tip: "讓咖啡經過舌尖與兩側，判斷酸甜輪廓。" },
-        { phase: 1, icon: "💨", action: "用吸氣式啜吸，感受口感與厚度", tip: "帶入一點空氣，辨認絲滑、果汁感或巧克力質地。" },
-        { phase: 2, icon: "✨", action: "吞下後立即辨認第一個回甘", tip: "記住最先浮現的糖香、果甜或可可尾韻。" },
-        { phase: 2, icon: "⏳", action: "等待 5 秒，再確認餘韻", tip: "感受花香、香料、酒香或木質是否仍然存在。" }
+        { phase: 0, sense: "嗅覺・第一層香氣", icon: "👃", action: "先不晃杯，聞第一層香氣", tip: "此步只出現水果、花、甜香、堅果與香氣強度。", options: groups.aromaFirst },
+        { phase: 0, sense: "嗅覺・晃杯後細項", icon: "🌀", action: "輕晃杯子，再聞一次香氣變化", tip: "此步只辨認更具體的水果、花香、甜香與發酵香。", options: groups.aromaSwirl },
+        { phase: 1, sense: "味覺・酸質與甜感", icon: "☕", action: "小口啜飲，先找酸與甜", tip: "此步不判斷質地，只選酸質種類、甜感或酸甜平衡。", options: groups.acidSweet },
+        { phase: 1, sense: "觸覺・口感與醇厚", icon: "💨", action: "用吸氣式啜吸，感受口感與厚度", tip: "此步只出現絲滑、奶油、果汁、糖漿、氣泡與厚薄。", options: groups.textureBody },
+        { phase: 2, sense: "餘韻・立即回甘", icon: "✨", action: "吞下後立即辨認第一個回甘", tip: "此步只捕捉果甜、糖香、蜂蜜、花香與初現可可。", options: groups.finishImmediate },
+        { phase: 2, sense: "餘韻・深層與長度", icon: "⏳", action: "等待 5 秒，再確認餘韻", tip: "此步只判斷餘韻長度、香料、酒香、煙燻、木質與乾澀。", options: groups.finishDeep }
       ]
     },
     master: {
       label: "大師版", total: 9, cycle: 350,
-      note: "完整九步感官流程，開放全部細項，輪播速度更快，適合細緻辨識。",
+      note: "九個步驟各自使用專屬感官詞庫，從乾淨度、鼻後香到代表風格逐層辨識。",
       steps: [
-        { phase: 0, icon: "👀", action: "先觀察蒸氣與香氣的乾淨度", tip: "暫時不要喝，判斷氣味是明亮、沉穩或帶發酵感。" },
-        { phase: 0, icon: "👃", action: "短吸聞香，辨認香氣方向", tip: "用短而輕的吸氣，先決定果香、花香、甜香或堅果。" },
-        { phase: 0, icon: "🌀", action: "輕晃後深聞，找出具體細項", tip: "把大類縮小成佛手柑、茉莉、蜂蜜、紅酒等具體味道。" },
-        { phase: 1, icon: "☕", action: "第一小口，只判斷酸質與溫度", tip: "先忽略其他味道，辨認酸質是柑橘、蘋果、葡萄或莓果。" },
-        { phase: 1, icon: "💨", action: "啜吸帶入空氣，辨認香氣與甜感", tip: "讓香氣進入鼻後腔，找果汁感、蜂蜜、楓糖或花香。" },
-        { phase: 1, icon: "👅", action: "含住 2 秒，比較質地與醇厚", tip: "判斷絲滑、奶油、糖漿、氣泡、巧克力或可可脂。" },
-        { phase: 2, icon: "✨", action: "吞下後立即記錄第一個尾韻", tip: "捕捉最先留下的果甜、糖香、花香或可可。" },
-        { phase: 2, icon: "⏳", action: "等待 5 秒，辨認深層餘韻", tip: "注意香料、酒香、煙燻、木質與茶單寧。" },
-        { phase: 2, icon: "🧠", action: "回想整杯，選出代表風味", tip: "用最後一次選擇，決定這杯咖啡最核心的記憶。" }
+        { phase: 0, sense: "嗅覺・乾淨度與強度", icon: "👀", action: "先觀察蒸氣並感受香氣乾淨度", tip: "只判斷清晰、純淨、濃淡、發酵或雜味，不選水果名稱。", options: groups.cleanliness },
+        { phase: 0, sense: "嗅覺・香氣方向", icon: "👃", action: "短吸聞香，辨認香氣方向", tip: "先決定水果、花、甜香或堅果等大方向。", options: groups.aromaFirst },
+        { phase: 0, sense: "嗅覺・具體香氣細項", icon: "🌀", action: "輕晃後深聞，找出具體細項", tip: "再縮小成佛手柑、茉莉、蜂蜜、黑醋栗或紅酒等細項。", options: groups.aromaSwirl },
+        { phase: 1, sense: "味覺・溫度與酸質", icon: "☕", action: "第一小口，只判斷酸質與溫度", tip: "此步只顯示溫度感、酸質形態與具體酸質。", options: groups.acidTemperature },
+        { phase: 1, sense: "鼻後嗅覺・香氣與甜感", icon: "💨", action: "啜吸帶入空氣，辨認鼻後香與甜感", tip: "此步只判斷鼻後回升的香氣與甜感種類、強度。", options: groups.retronasalSweet },
+        { phase: 1, sense: "口腔觸覺・質地與醇厚", icon: "👅", action: "含住 2 秒，比較質地與醇厚", tip: "此步只判斷絲滑、奶油、果汁、糖漿、氣泡、厚薄與可可質地。", options: groups.textureBody },
+        { phase: 2, sense: "餘韻・第一個尾韻", icon: "✨", action: "吞下後立即記錄第一個尾韻", tip: "此步只捕捉最先出現的果甜、糖香、回甘、花香或可可。", options: groups.finishImmediate },
+        { phase: 2, sense: "餘韻・長度與深層香氣", icon: "⏳", action: "等待 5 秒，辨認深層餘韻", tip: "此步只判斷長短、香料、酒香、煙燻、木質、乾澀與收尾乾淨度。", options: groups.finishDeep },
+        { phase: 2, sense: "整體判讀・代表風格", icon: "🧠", action: "回想整杯，選出代表風格", tip: "最後用一個整體形容詞總結這杯咖啡，而不是再選單一水果。", options: groups.representative }
       ]
     }
   };
 
-  const w = (cat, detail, score, fx) => ({ cat, detail, score, fx });
-  const masterPools = [
-    [
-      w("水感", "稀薄", 18, "muted"), w("清新", "小黃瓜", 42, "muted"), w("果香", "青蘋果", 58, "fruit"),
-      w("果香", "西洋梨", 64, "fruit"), w("果香", "檸檬", 72, "fruit"), w("果香", "葡萄柚", 86, "fruit"),
-      w("果香", "柳橙", 82, "fruit"), w("果香", "佛手柑", 92, "fruit"), w("果香", "白葡萄", 88, "fruit"),
-      w("果香", "水蜜桃", 90, "fruit"), w("果香", "杏桃", 84, "fruit"), w("果香", "草莓", 94, "fruit"),
-      w("果香", "覆盆子", 96, "fruit"), w("果香", "藍莓", 88, "fruit"), w("果香", "黑醋栗", 86, "fruit"),
-      w("果香", "鳳梨", 76, "fruit"), w("花香", "茉莉", 100, "floral"), w("花香", "橙花", 96, "floral"),
-      w("花香", "玫瑰", 92, "floral"), w("花香", "薰衣草", 82, "floral"), w("花香", "洋甘菊", 86, "floral"),
-      w("甜香", "蜂蜜", 90, "sweet"), w("甜香", "香草", 84, "sweet"), w("甜香", "黑糖", 78, "sweet"),
-      w("堅果", "榛果", 66, "body"), w("堅果", "杏仁", 62, "body"), w("發酵香", "紅酒", 48, "mature"),
-      w("發酵香", "蘭姆酒", 44, "mature"), w("過熟", "熟香蕉", 18, "muted")
-    ],
-    [
-      w("單薄", "茶水感", 18, "muted"), w("輕盈", "白茶感", 48, "muted"), w("輕盈", "紅茶感", 54, "muted"),
-      w("酸質", "檸檬酸", 72, "fruit"), w("酸質", "柳橙酸", 78, "fruit"), w("酸質", "青蘋果酸", 82, "fruit"),
-      w("酸質", "白葡萄酸", 88, "fruit"), w("酸質", "莓果酸", 86, "fruit"), w("酸質", "百香果酸", 80, "fruit"),
-      w("甜感", "蜂蜜", 92, "sweet"), w("甜感", "楓糖", 90, "sweet"), w("甜感", "蔗糖", 86, "sweet"),
-      w("甜感", "黑糖", 84, "sweet"), w("甜感", "太妃糖", 88, "sweet"), w("口感", "絲滑", 100, "body"),
-      w("口感", "奶油感", 94, "body"), w("口感", "果汁感", 88, "fruit"), w("口感", "糖漿感", 90, "sweet"),
-      w("口感", "氣泡感", 80, "fruit"), w("平衡", "酸甜均衡", 96, "body"), w("平衡", "柔和圓潤", 94, "body"),
-      w("醇厚", "牛奶巧克力", 90, "body"), w("醇厚", "黑巧克力", 80, "body"), w("醇厚", "奶油", 88, "body"),
-      w("醇厚", "可可脂", 84, "body"), w("烘焙", "焦糖", 68, "body"), w("烘焙", "烤杏仁", 62, "body"),
-      w("香料", "肉桂", 58, "mature"), w("苦感", "可可苦", 38, "muted"), w("苦澀", "藥草", 16, "muted")
-    ],
-    [
-      w("短促", "快速消散", 18, "muted"), w("乾淨", "白茶尾韻", 54, "muted"), w("乾淨", "紅茶尾韻", 58, "muted"),
-      w("果甜", "蘋果回甜", 72, "fruit"), w("果甜", "葡萄回甜", 82, "fruit"), w("果甜", "莓果回甜", 86, "fruit"),
-      w("果甜", "桃子回甜", 88, "fruit"), w("柑橘", "佛手柑尾韻", 90, "fruit"), w("糖香", "焦糖回甘", 92, "sweet"),
-      w("糖香", "黑糖回甘", 88, "sweet"), w("糖香", "楓糖尾韻", 90, "sweet"), w("回甘", "蜂蜜甜感", 100, "sweet"),
-      w("回甘", "蔗糖甜感", 94, "sweet"), w("餘韻", "可可綿長", 96, "body"), w("餘韻", "堅果悠長", 90, "body"),
-      w("餘韻", "奶油柔順", 94, "body"), w("餘韻", "花香回返", 96, "floral"), w("花香", "茉莉回香", 98, "floral"),
-      w("香料", "肉桂", 76, "mature"), w("香料", "丁香", 66, "mature"), w("香料", "豆蔻", 72, "mature"),
-      w("酒香", "紅酒發酵", 54, "mature"), w("酒香", "威士忌桶", 58, "mature"), w("酒香", "蘭姆葡萄", 62, "mature"),
-      w("煙燻", "雪松木", 52, "mature"), w("煙燻", "烤木質", 46, "mature"), w("乾澀", "茶單寧", 24, "muted"),
-      w("土質", "潮濕泥土", 20, "muted"), w("苦澀", "焦苦", 14, "muted")
-    ]
-  ];
-
-  const poolIndexes = {
-    simple: [
-      [0, 2, 4, 11, 16, 21, 24, 26],
-      [0, 3, 7, 9, 14, 19, 21, 28],
-      [0, 2, 5, 8, 11, 13, 18, 26]
-    ],
-    expert: [
-      [0, 1, 2, 3, 4, 5, 7, 8, 9, 11, 12, 16, 17, 18, 20, 21, 22, 24, 26, 28],
-      [0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 12, 13, 14, 15, 16, 17, 19, 21, 22, 25, 27, 28],
-      [0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 13, 14, 16, 17, 18, 19, 21, 22, 24, 26, 28]
-    ],
-    master: [
-      masterPools[0].map((_, i) => i), masterPools[1].map((_, i) => i), masterPools[2].map((_, i) => i)
-    ]
-  };
-
-  const S = {
-    mode: "simple", started: false, done: false, pressing: false, t0: 0,
-    pulseStart: performance.now(), pulseScale: 0.3, wordIndex: -1, current: null, inputs: [], result: null
-  };
-
+  const S = { mode: "simple", started: false, done: false, pressing: false, t0: 0, pulseStart: performance.now(), pulseScale: 0.3, wordIndex: -1, current: null, inputs: [], result: null };
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const currentMode = () => modes[S.mode];
   const currentStepIndex = () => Math.min(S.inputs.length, currentMode().total - 1);
   const currentStep = () => currentMode().steps[currentStepIndex()];
-  const currentPhase = () => currentStep().phase;
-  const currentPool = () => poolIndexes[S.mode][currentPhase()].map((index) => masterPools[currentPhase()][index]);
+  const currentPool = () => currentStep().options;
 
   function toast(text) {
     E.toast.textContent = text;
@@ -157,9 +179,8 @@
 
   function updateActionGuide() {
     const step = currentStep();
-    const number = currentStepIndex() + 1;
     E.actionIcon.textContent = step.icon;
-    E.actionStep.textContent = `STEP ${number} / ${currentMode().total}・${phaseInfo[step.phase].name}`;
+    E.actionStep.textContent = `STEP ${currentStepIndex() + 1} / ${currentMode().total}・${phaseInfo[step.phase].name}・${step.sense}`;
     E.actionText.textContent = step.action;
     E.actionTip.textContent = step.tip;
   }
@@ -170,19 +191,19 @@
     E.count.textContent = `${S.inputs.length} / ${currentMode().total}`;
     if (!S.started) {
       E.stage.textContent = `準備品飲｜${currentMode().label}`;
-      E.desc.textContent = `完成 ${currentMode().total} 個動作，風味選項會依難度增加。`;
-      E.hint.innerHTML = `<b>先看上方動作提示</b><span>按下開始後，每一步都照提示操作，再長按選擇當下感受到的風味。</span>`;
+      E.desc.textContent = `完成 ${currentMode().total} 個動作，每一步只顯示對應感官詞。`;
+      E.hint.innerHTML = `<b>先看上方的動作與感官</b><span>開始後，每一步的選項會自動切換成正確的形容詞與風味範圍。</span>`;
       return;
     }
     const step = currentStep();
     E.stage.textContent = `第 ${currentStepIndex() + 1} 步｜${phaseInfo[step.phase].name}`;
-    E.desc.textContent = step.action;
-    E.hint.innerHTML = `<b>${currentMode().label}：目前有 ${currentPool().length} 個風味選項</b><span>${step.tip}</span>`;
+    E.desc.textContent = `${step.sense}：${step.action}`;
+    E.hint.innerHTML = `<b>${step.sense}・${currentPool().length} 個對應選項</b><span>${step.tip}</span>`;
   }
 
   function animatePulse(now) {
     if (!S.done) {
-      const phase = ((now - S.pulseStart) % phaseInfo[currentPhase()].speed) / phaseInfo[currentPhase()].speed;
+      const phase = ((now - S.pulseStart) % phaseInfo[currentStep().phase].speed) / phaseInfo[currentStep().phase].speed;
       const wave = phase < 0.5 ? phase * 2 : (1 - phase) * 2;
       const eased = 0.5 - 0.5 * Math.cos(Math.PI * wave);
       S.pulseScale = 0.28 + eased * 0.92;
@@ -206,7 +227,7 @@
   function setFx(type) {
     clearFx();
     E.scene.classList.add(`fx-${type}`);
-    const colors = palettes[type];
+    const colors = palettes[type] || palettes.muted;
     const count = S.mode === "simple" ? 8 : S.mode === "expert" ? 11 : 14;
     for (let i = 0; i < count; i += 1) {
       const particle = document.createElement("i");
@@ -225,9 +246,9 @@
   function startGame() {
     S.started = true;
     S.pulseStart = performance.now();
-    E.hold.textContent = "按住品嚐・選到符合感受的風味放開";
+    E.hold.textContent = "按住品嚐・選到符合感受的詞放開";
     updateUI();
-    toast(`${currentMode().label}開始・共 ${currentMode().total} 步`);
+    toast(`${currentMode().label}開始・每一步使用專屬感官詞庫`);
     tone(440);
   }
 
@@ -236,7 +257,6 @@
     window.getSelection?.()?.removeAllRanges();
     if (!S.started) { startGame(); return; }
     if (S.done || S.pressing) return;
-
     S.pressing = true;
     S.t0 = performance.now();
     S.wordIndex = -1;
@@ -251,8 +271,7 @@
       if (!S.pressing) return;
       const elapsed = performance.now() - S.t0;
       const phase = (elapsed % 2900) / 2900;
-      const progress = phase < 0.5 ? phase * 200 : (1 - phase) * 200;
-      E.hold.style.setProperty("--progress", `${progress}%`);
+      E.hold.style.setProperty("--progress", `${phase < 0.5 ? phase * 200 : (1 - phase) * 200}%`);
       const words = currentPool();
       const index = Math.floor(elapsed / currentMode().cycle) % words.length;
       const item = words[index];
@@ -285,8 +304,8 @@
     const ring = clamp(1 - Math.abs(S.pulseScale - 0.95) / 0.75, 0, 1);
     const accuracy = clamp(ring * 0.52 + (item.score / 100) * 0.48, 0, 1);
     S.inputs.push({
-      duration, accuracy, word: `${item.cat}・${item.detail}`, cat: item.cat, detail: item.detail,
-      score: item.score, fx: item.fx, phase: step.phase, step: stepIndex, action: step.action, mode: S.mode
+      duration, accuracy, word: `${item.cat}・${item.detail}`, cat: item.cat, detail: item.detail, score: item.score, fx: item.fx,
+      phase: step.phase, step: stepIndex, action: step.action, sense: step.sense, mode: S.mode
     });
 
     window.__coffeeRun = {
@@ -295,25 +314,23 @@
     };
 
     E.word.innerHTML = `<span>抓到：${item.cat}</span><small>${item.detail}</small>`;
-    toast(`第 ${S.inputs.length} 步：${item.cat}・${item.detail}`);
+    toast(`${step.sense}：${item.cat}・${item.detail}`);
     tone(420 + item.score * 2, 0.08);
     E.count.textContent = `${S.inputs.length} / ${currentMode().total}`;
     setTimeout(clearFx, 420);
 
     if (S.inputs.length >= currentMode().total) { setTimeout(finish, 480); return; }
-
     S.pulseStart = performance.now();
     setTimeout(() => {
       updateUI();
-      E.word.innerHTML = "<span>按住探索風味</span><small>照著目前動作提示進行</small>";
-      toast(`下一步：${currentStep().action}`);
+      E.word.innerHTML = `<span>按住探索感官</span><small>${currentStep().sense}</small>`;
+      toast(`下一步：${currentStep().sense}`);
     }, 330);
   }
 
   function phaseAverage(key, phase) {
     const items = S.inputs.filter((input) => input.phase === phase);
-    if (!items.length) return 0.5;
-    return items.reduce((sum, input) => sum + input[key], 0) / items.length;
+    return items.length ? items.reduce((sum, input) => sum + input[key], 0) / items.length : 0.5;
   }
 
   function calculateResult() {
@@ -329,7 +346,6 @@
     const aromaAccuracy = phaseAverage("accuracy", 0);
     const sipAccuracy = phaseAverage("accuracy", 1);
     const finishAccuracy = phaseAverage("accuracy", 2);
-
     const metrics = {
       香氣: Math.round(clamp(42 + aromaAccuracy * 43 + shortRatio * 12, 20, 100)),
       明亮感: Math.round(clamp(34 + shortRatio * 32 + aromaAccuracy * 18 + (1 - longRatio) * 10, 15, 100)),
@@ -339,18 +355,12 @@
       餘韻: Math.round(clamp(36 + finishAccuracy * 42 + average / 95, 20, 100))
     };
     metrics.甜感 = Math.round(clamp(38 + metrics.平衡感 * 0.27 + metrics.順口度 * 0.2, 20, 100));
-
     const chosen = S.inputs.map((input) => input.word);
     let name = "焦糖微光咖啡", character = "溫柔小咖啡師", quote = "甜感柔和、層次舒服，是一杯會讓人慢慢放鬆的咖啡。", mood = "happy";
-    if (metrics.明亮感 > metrics.醇厚度 + 13) {
-      name = "花果晨光咖啡"; character = "果香探險家"; quote = "明亮果酸帶著花香跳躍，入口清爽，細節活潑而鮮明。"; mood = "fruit";
-    } else if (metrics.醇厚度 > metrics.明亮感 + 15) {
-      name = "絲絨可可咖啡"; character = "可可守護者"; quote = "厚實口感包住舌尖，留下巧克力、焦糖與堅果般的溫暖。"; mood = "body";
-    } else if (metrics.平衡感 > 80 && metrics.順口度 > 78) {
-      name = "黃金平衡咖啡"; character = "啜飲魔法師"; quote = "酸、甜與醇厚互相襯托，乾淨、完整，又富有層次。"; mood = "gold";
-    } else if (metrics.甜感 > 78) {
-      name = "蜂蜜抱抱咖啡"; character = "甜感小精靈"; quote = "蜂蜜、焦糖與柔和果甜慢慢融化，圓潤而討喜。"; mood = "sweet";
-    }
+    if (metrics.明亮感 > metrics.醇厚度 + 13) { name = "花果晨光咖啡"; character = "果香探險家"; quote = "明亮果酸帶著花香跳躍，入口清爽，細節活潑而鮮明。"; mood = "fruit"; }
+    else if (metrics.醇厚度 > metrics.明亮感 + 15) { name = "絲絨可可咖啡"; character = "可可守護者"; quote = "厚實口感包住舌尖，留下巧克力、焦糖與堅果般的溫暖。"; mood = "body"; }
+    else if (metrics.平衡感 > 80 && metrics.順口度 > 78) { name = "黃金平衡咖啡"; character = "啜飲魔法師"; quote = "酸、甜與醇厚互相襯托，乾淨、完整，又富有層次。"; mood = "gold"; }
+    else if (metrics.甜感 > 78) { name = "蜂蜜抱抱咖啡"; character = "甜感小精靈"; quote = "蜂蜜、焦糖與柔和果甜慢慢融化，圓潤而討喜。"; mood = "sweet"; }
     const score = Math.round((metrics.香氣 + metrics.順口度 + metrics.平衡感 + metrics.餘韻 + metrics.甜感) / 5);
     return { metrics, chosen, name, character, quote, mood, score, mode: S.mode, modeLabel: currentMode().label, total };
   }
@@ -365,7 +375,7 @@
     S.result = calculateResult();
     const r = S.result;
     E.stage.textContent = "評測完成";
-    E.desc.textContent = `${r.modeLabel} ${r.total} 步已完成，風味選擇已整理成專屬咖啡。`;
+    E.desc.textContent = `${r.modeLabel} ${r.total} 步已完成，每個結果都來自對應感官詞庫。`;
     E.title.textContent = r.name;
     E.metrics.innerHTML = ["香氣", "明亮感", "醇厚度", "順口度", "平衡感", "餘韻"]
       .map((key) => `<div class="metric"><b>${key} ${r.metrics[key]}</b><span class="beans">${beans(r.metrics[key])}</span></div>`).join("");
@@ -457,8 +467,9 @@
     window.__coffeeRun = null;
     clearFx();
     E.game.classList.remove("hidden"); E.status.classList.remove("hidden"); E.modePicker.classList.remove("hidden"); E.result.classList.add("hidden");
-    E.hold.textContent = "開始品飲"; E.hold.style.setProperty("--progress", "0%");
-    E.word.innerHTML = "<span>按住探索風味</span><small>依難度顯示不同數量的細項</small>";
+    E.hold.textContent = "開始品飲";
+    E.hold.style.setProperty("--progress", "0%");
+    E.word.innerHTML = "<span>按住探索感官</span><small>每一步會顯示正確的形容詞</small>";
     updateUI();
     scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -470,7 +481,7 @@
       S.inputs = [];
       S.pulseStart = performance.now();
       updateUI();
-      toast(`${currentMode().label}：${currentMode().total} 步・每階段 ${currentPool().length} 個起始選項`);
+      toast(`${currentMode().label}：${currentMode().total} 步・專屬感官詞庫已切換`);
       tone(S.mode === "simple" ? 440 : S.mode === "expert" ? 560 : 680, 0.06);
     });
   });
