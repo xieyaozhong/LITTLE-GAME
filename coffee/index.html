@@ -8,29 +8,43 @@
 <link rel="stylesheet" href="style.css?v=2">
 <link rel="stylesheet" href="word-effects.css?v=1">
 <link rel="stylesheet" href="polish.css?v=1">
+<link rel="stylesheet" href="difficulty.css?v=1">
 <link rel="stylesheet" href="result-feedback.css?v=1">
 <link rel="stylesheet" href="result-unified.css?v=1">
 </head>
 <body>
-<main class="app">
+<main class="app mode-simple">
 <header class="panel">
 <h1>☕ 像素咖啡品味所</h1>
-<p>探索更細緻的香氣、口感與餘韻，遇到喜歡的風味就放開</p>
+<p>選擇品嚐難度，照著每一步的動作提示探索香氣、口感與餘韻</p>
 </header>
+<section class="panel mode-picker" id="modePicker">
+<div class="mode-head"><div><b>選擇品嚐模式</b><span>步驟與風味細項會依難度增加</span></div><div class="mode-badge" id="modeBadge">簡單版・3 步</div></div>
+<div class="mode-options">
+<button class="mode-btn active" data-mode="simple"><b>簡單版</b><span>3 步<br>基礎風味</span></button>
+<button class="mode-btn" data-mode="expert"><b>專家版</b><span>6 步<br>進階細項</span></button>
+<button class="mode-btn" data-mode="master"><b>大師版</b><span>9 步<br>完整辨識</span></button>
+</div>
+<div class="mode-note" id="modeNote">每個階段只做一個核心動作，風味選項以明顯、容易聯想的大類為主。</div>
+</section>
 <section class="panel status" id="status">
-<div><div class="stage" id="stage">準備品飲</div><div class="desc" id="desc">光圈與風味會持續循環，不必急著放開。</div></div>
-<div class="count" id="count">0 / 6</div>
+<div><div class="stage" id="stage">準備品飲｜簡單版</div><div class="desc" id="desc">完成 3 個動作，風味選項會依難度增加。</div></div>
+<div class="count" id="count">0 / 3</div>
 </section>
 <section class="panel game" id="game">
+<div class="action-guide" id="actionGuide">
+<div class="action-icon" id="actionIcon">👃</div>
+<div class="action-copy"><span class="action-step" id="actionStep">STEP 1 / 3・聞香</span><b id="actionText">把杯子靠近鼻尖，安靜聞香 2–3 秒</b><small id="actionTip">先不要晃杯，選第一個讓你有感覺的香氣。</small></div>
+</div>
 <div class="scene" id="scene">
-<div class="word" id="word"><span>按住探索風味</span><small>更多大類與細項會輪流出現</small></div>
+<div class="word" id="word"><span>按住探索風味</span><small>依難度顯示不同數量的細項</small></div>
 <div class="particles" id="particles"></div>
 <div class="ringbox">
 <div class="target"></div><div class="pulse" id="pulse"></div><div class="charge"></div>
 <div class="cup"><div class="steam"><i></i><i></i><i></i></div><div class="face"></div></div>
 </div>
 </div>
-<div class="hint" id="hint"><b>按下「開始品飲」</b><span>每個類別都有不同的色彩、粒子、光圈與文字框效果。</span></div>
+<div class="hint" id="hint"><b>先看上方動作提示</b><span>按下開始後，每一步都照提示操作，再長按選擇當下感受到的風味。</span></div>
 <button class="hold" id="hold">開始品飲</button>
 </section>
 <section class="panel result hidden" id="result">
@@ -50,7 +64,7 @@
 <div class="flavor-summary" id="flavorSummary"></div>
 </section>
 <section class="result-block">
-<div class="block-heading"><span class="block-index">03</span><div class="block-copy"><b>本次捕捉</b><small>六次實際選到的細項</small></div></div>
+<div class="block-heading"><span class="block-index">03</span><div class="block-copy"><b>本次捕捉</b><small>所有步驟實際選到的細項</small></div></div>
 <div class="tags" id="tags"></div>
 </section>
 </div>
@@ -66,8 +80,8 @@
 <footer>Pixel Coffee Lab · 咖啡風味探索實驗室</footer>
 </main>
 <div class="toast" id="toast"></div>
-<script src="game.js?v=4"></script>
-<script src="result-feedback.js?v=1"></script>
+<script src="game.js?v=5"></script>
+<script src="result-feedback.js?v=2"></script>
 <script src="avatar-feedback.js?v=2"></script>
 </body>
 </html>
