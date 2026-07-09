@@ -10,6 +10,11 @@
   const overview = document.getElementById("resultOverview");
   const insight = document.getElementById("modeInsight");
   const journey = document.getElementById("journeyList");
+  const metricBlock = document.getElementById("metricBlock");
+  const insightBlock = document.getElementById("insightBlock");
+  const flavorBlock = document.getElementById("flavorBlock");
+  const journeyBlock = document.getElementById("journeyBlock");
+  const captureBlock = document.getElementById("captureBlock");
   const metricHeading = document.querySelector("#metricBlock .block-copy b");
   const flavorHeading = document.querySelector("#flavorBlock .block-copy b");
   const captureHeading = document.querySelector("#captureBlock .block-copy b");
@@ -133,6 +138,18 @@
     }).join("");
   }
 
+  function updateBlockOrder(mode) {
+    journeyBlock.hidden = mode !== "master";
+    const blocks = [metricBlock, insightBlock, flavorBlock, journeyBlock, captureBlock];
+    let number = 1;
+    blocks.forEach((block) => {
+      if (!block || block.hidden) return;
+      const index = block.querySelector(".block-index");
+      if (index) index.textContent = String(number).padStart(2, "0");
+      number += 1;
+    });
+  }
+
   function applyLayout() {
     if (result.classList.contains("hidden")) return;
     const run = getRun();
@@ -153,6 +170,7 @@
     flavorHeading.textContent = config.flavorTitle;
     captureHeading.textContent = config.captureTitle;
 
+    updateBlockOrder(mode);
     buildOverview(run, mode);
     buildInsight(run, mode);
     buildJourney(run);
@@ -170,6 +188,7 @@
       overview.innerHTML = "";
       insight.innerHTML = "";
       journey.innerHTML = "";
+      journeyBlock.hidden = false;
       return;
     }
     schedule();
