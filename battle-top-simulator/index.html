@@ -16,7 +16,7 @@ html,body{margin:0;min-height:100%;background:#040711;color:#eef5ff;font-family:
  const response=await fetch(snapshot,{cache:'force-cache'});
  if(!response.ok)throw new Error(`視覺快照載入失敗：${response.status}`);
  let html=await response.text();
- const scripts='<scr'+'ipt src="physics-core.js?v=6"></scr'+'ipt><scr'+'ipt src="presets-launch.js?v=6"></scr'+'ipt><scr'+'ipt src="physics-runtime.js?v=6"></scr'+'ipt>';
+ const scripts='<scr'+'ipt src="physics-core.js?v=7"></scr'+'ipt><scr'+'ipt src="presets-launch.js?v=7"></scr'+'ipt><scr'+'ipt src="physics-runtime.js?v=7"></scr'+'ipt><scr'+'ipt src="rod-breaker.js?v=7"></scr'+'ipt>';
  html=html.replace('</body>',scripts+'</body>');
  document.open();document.write(html);document.close();
 })().catch(error=>{
