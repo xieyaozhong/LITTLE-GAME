@@ -65,6 +65,173 @@
    if(this.c.shape==='wooden')return this.r*(.92+.05*Math.cos(i*.8));
    return super.bladeRadius(i);
   }
+  drawModel(speed){
+   if(this.c.shape!=='wooden')return super.drawModel(speed);
+
+   const r=this.r;
+   const spinPower=clamp(Math.abs(this.spin)/Math.max(24,Math.abs(this.omega0||24)),0,1);
+   ctx.save();
+   const wob=clamp((24-this.energy)/24,0,1)*1.75;
+   ctx.translate(this.x+Math.sin(this.angle*.40)*wob,this.y+Math.cos(this.angle*.36)*wob);
+
+   // 木陀螺投影
+   ctx.save();
+   ctx.translate(3.2,5.2);
+   ctx.scale(1,.46);
+   const shadow=ctx.createRadialGradient(0,0,1,0,0,r*1.38);
+   shadow.addColorStop(0,'#000c');
+   shadow.addColorStop(1,'#0000');
+   ctx.fillStyle=shadow;
+   ctx.beginPath();
+   ctx.arc(0,0,r*1.45,0,Math.PI*2);
+   ctx.fill();
+   ctx.restore();
+
+   // 高速旋轉時的溫暖木色殘影
+   if(spinPower>.25){
+    ctx.save();
+    ctx.globalCompositeOperation='screen';
+    ctx.strokeStyle=alpha(this.c.secondary,.08+.09*spinPower);
+    ctx.lineWidth=2+spinPower*2.5;
+    for(let k=0;k<3;k++){
+     ctx.beginPath();
+     ctx.arc(0,0,r*(1.02+k*.11),this.angle*.7+k*.6,this.angle*.7+Math.PI*(.74+spinPower*.65)+k*.6);
+     ctx.stroke();
+    }
+    ctx.restore();
+   }
+
+   ctx.rotate(this.angle*.92);
+
+   // 主木盤
+   const woodBase=ctx.createRadialGradient(-r*.22,-r*.26,r*.12,0,0,r*1.08);
+   woodBase.addColorStop(0,'#f3d7a6');
+   woodBase.addColorStop(.18,'#c58c53');
+   woodBase.addColorStop(.54,'#8a5a2b');
+   woodBase.addColorStop(.84,'#593617');
+   woodBase.addColorStop(1,'#2b170b');
+   ctx.fillStyle=woodBase;
+   ctx.beginPath();
+   ctx.arc(0,0,r*.98,0,Math.PI*2);
+   ctx.fill();
+
+   // 外框深木色
+   ctx.strokeStyle='#3f2412';
+   ctx.lineWidth=1.2;
+   ctx.stroke();
+
+   // 木紋與年輪
+   ctx.save();
+   ctx.beginPath();
+   ctx.arc(0,0,r*.94,0,Math.PI*2);
+   ctx.clip();
+
+   for(let i=0;i<7;i++){
+    const rr=r*(.18+i*.11);
+    ctx.strokeStyle=i%2?alpha('#6a3f1d',.30):alpha('#e4bf87',.20);
+    ctx.lineWidth=.8+i*.04;
+    ctx.beginPath();
+    ctx.arc(Math.sin(i*1.9)*r*.03,Math.cos(i*1.3)*r*.03,rr,0,Math.PI*2);
+    ctx.stroke();
+   }
+
+   for(let i=-5;i<=5;i++){
+    const y=i*r*.13;
+    ctx.strokeStyle=i%2?alpha('#613716',.16):alpha('#f2d7a8',.10);
+    ctx.lineWidth=1.05;
+    ctx.beginPath();
+    ctx.moveTo(-r*.82,y-Math.sin(i*1.8)*r*.05);
+    ctx.quadraticCurveTo(-r*.18,y+r*.09*Math.sin(i*.9),r*.18,y-r*.08*Math.cos(i*1.4));
+    ctx.quadraticCurveTo(r*.56,y+r*.06*Math.sin(i*1.2),r*.84,y+r*.03*Math.cos(i*2.1));
+    ctx.stroke();
+   }
+   ctx.restore();
+
+   // 傳統漆色飾圈
+   ctx.save();
+   ctx.strokeStyle='#9a1f1f';
+   ctx.lineWidth=r*.08;
+   ctx.beginPath();
+   ctx.arc(0,0,r*.70,0,Math.PI*2);
+   ctx.stroke();
+   ctx.strokeStyle='#f4d2aa';
+   ctx.lineWidth=r*.03;
+   ctx.beginPath();
+   ctx.arc(0,0,r*.58,0,Math.PI*2);
+   ctx.stroke();
+   ctx.strokeStyle='#20252c';
+   ctx.lineWidth=r*.025;
+   ctx.beginPath();
+   ctx.arc(0,0,r*.49,0,Math.PI*2);
+   ctx.stroke();
+   ctx.restore();
+
+   // 手工削切面的質感
+   ctx.save();
+   ctx.fillStyle=alpha('#f8e0ba',.16);
+   for(let i=0;i<8;i++){
+    const a=i*Math.PI/4;
+    ctx.save();
+    ctx.rotate(a);
+    ctx.beginPath();
+    if(ctx.roundRect)ctx.roundRect(r*.36,-r*.07,r*.24,r*.14,r*.05);
+    else ctx.rect(r*.36,-r*.07,r*.24,r*.14);
+    ctx.fill();
+    ctx.restore();
+   }
+   ctx.restore();
+
+   // 中心木芯與木釘
+   const hub=ctx.createRadialGradient(-r*.08,-r*.10,1,0,0,r*.33);
+   hub.addColorStop(0,'#fff3da');
+   hub.addColorStop(.25,'#d8a56b');
+   hub.addColorStop(.7,'#8f5b2e');
+   hub.addColorStop(1,'#4a2c16');
+   ctx.fillStyle=hub;
+   ctx.beginPath();
+   ctx.arc(0,0,r*.30,0,Math.PI*2);
+   ctx.fill();
+   ctx.strokeStyle='rgba(255,255,255,.35)';
+   ctx.lineWidth=1;
+   ctx.stroke();
+
+   ctx.fillStyle='#7a4d28';
+   ctx.beginPath();
+   ctx.arc(0,0,r*.10,0,Math.PI*2);
+   ctx.fill();
+   ctx.strokeStyle='#f5dfb5';
+   ctx.lineWidth=.8;
+   ctx.stroke();
+
+   // 中央字樣
+   ctx.fillStyle='rgba(255,248,235,.92)';
+   ctx.font=`1000 ${Math.max(6,r*.18)}px system-ui`;
+   ctx.textAlign='center';
+   ctx.textBaseline='middle';
+   ctx.fillText(initials(this.c.name),0,.4);
+
+   // 上蠟後的反光帶
+   ctx.globalCompositeOperation='screen';
+   const varnish=ctx.createLinearGradient(-r,-r,r,r);
+   varnish.addColorStop(0,'#ffffff00');
+   varnish.addColorStop(.38,'#ffffff00');
+   varnish.addColorStop(.50,'#fff6e2b8');
+   varnish.addColorStop(.60,'#ffffff00');
+   varnish.addColorStop(1,'#ffffff00');
+   ctx.fillStyle=varnish;
+   ctx.beginPath();
+   ctx.arc(0,0,r*.95,0,Math.PI*2);
+   ctx.fill();
+   ctx.globalCompositeOperation='source-over';
+
+   // 外圈微亮描邊
+   ctx.strokeStyle=alpha('#f7e2bd',.40);
+   ctx.lineWidth=1.1;
+   ctx.beginPath();
+   ctx.arc(0,0,r*1.01,0,Math.PI*2);
+   ctx.stroke();
+   ctx.restore();
+  }
  };
 
  const previousCollide=collide;
