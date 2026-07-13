@@ -14,7 +14,8 @@
   knightT1:{name:'騎士鎧甲',label:'[T1.5] 騎士鎧甲｜Knight Mail'},
   whaleT1:{name:'鯨浪',label:'[T1.5] 鯨浪｜Whale Wave'},
   golemT1:{name:'魔像岩',label:'[T1.5] 魔像岩｜Golem Rock'},
-  rodBreaker:{name:'弒杖獠牙',label:'[神杖剋星] 弒杖獠牙｜Rod Breaker'}
+  rodBreaker:{name:'弒杖獠牙',label:'[神杖剋星] 弒杖獠牙｜Rod Breaker'},
+  woodenSage:{name:'傳統木陀螺',label:'[自訂剋星] 傳統木陀螺｜Traditional Wooden Top'}
  };
 
  Object.entries(ZH_NAMES).forEach(([key,zh])=>{
@@ -36,5 +37,5 @@
 
  document.querySelector('#n1').textContent=cfg.p1.name;
  document.querySelector('#n2').textContent=cfg.p2.name;
- document.querySelector('#log').textContent='陀螺選項已更新為中文名稱；英文名稱保留在中文名稱後方方便辨識。';
+ document.querySelector('#log').textContent='陀螺選項已更新為中文名稱；新增「傳統木陀螺」，專門制衡高數值自訂陀螺。';
 })();
