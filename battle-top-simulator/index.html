@@ -16,7 +16,7 @@ html,body{margin:0;min-height:100%;background:#040711;color:#eef5ff;font-family:
  const response=await fetch(snapshot,{cache:'force-cache'});
  if(!response.ok)throw new Error(`視覺快照載入失敗：${response.status}`);
  let html=await response.text();
- const scripts='<scr'+'ipt src="physics-core.js?v=10"></scr'+'ipt><scr'+'ipt src="presets-launch.js?v=10"></scr'+'ipt><scr'+'ipt src="physics-runtime.js?v=10"></scr'+'ipt><scr'+'ipt src="rod-breaker.js?v=10"></scr'+'ipt><scr'+'ipt src="wooden-top-counter.js?v=10"></scr'+'ipt><scr'+'ipt src="preset-zh-tw.js?v=10"></scr'+'ipt><scr'+'ipt src="split-top.js?v=2"></scr'+'ipt><scr'+'ipt src="sky-pouncer.js?v=1"></scr'+'ipt>';
+ const scripts='<scr'+'ipt src="physics-core.js?v=10"></scr'+'ipt><scr'+'ipt src="presets-launch.js?v=10"></scr'+'ipt><scr'+'ipt src="physics-runtime.js?v=10"></scr'+'ipt><scr'+'ipt src="rod-breaker.js?v=10"></scr'+'ipt><scr'+'ipt src="wooden-top-counter.js?v=10"></scr'+'ipt><scr'+'ipt src="preset-zh-tw.js?v=10"></scr'+'ipt><scr'+'ipt src="split-top.js?v=2"></scr'+'ipt><scr'+'ipt src="sky-pouncer.js?v=1"></scr'+'ipt><scr'+'ipt src="phase-cloak.js?v=1"></scr'+'ipt>';
  html=html.replace('</body>',scripts+'</body>');
  document.open();document.write(html);document.close();
 })().catch(error=>{
