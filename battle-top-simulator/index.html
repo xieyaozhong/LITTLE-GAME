@@ -9,14 +9,14 @@ html,body{margin:0;min-height:100%;background:#040711;color:#eef5ff;font-family:
 </style>
 </head>
 <body>
-<div class="loading"><div class="spinner"></div><strong>載入剛體物理引擎</strong><div class="msg">T1 陀螺・發射點・角動量・X Dash</div></div>
+<div class="loading"><div class="spinner"></div><strong>載入剛體物理引擎</strong><div class="msg">T1 陀螺・發射點・角動量・X Dash・雙生分裂</div></div>
 <script>
 (async()=>{
  const snapshot='https://raw.githubusercontent.com/xieyaozhong/LITTLE-GAME_spinwheel/f87bd6ff9020b1e0e7bb3723da7d372226b92999/battle-top-simulator/index.html';
  const response=await fetch(snapshot,{cache:'force-cache'});
  if(!response.ok)throw new Error(`視覺快照載入失敗：${response.status}`);
  let html=await response.text();
- const scripts='<scr'+'ipt src="physics-core.js?v=10"></scr'+'ipt><scr'+'ipt src="presets-launch.js?v=10"></scr'+'ipt><scr'+'ipt src="physics-runtime.js?v=10"></scr'+'ipt><scr'+'ipt src="rod-breaker.js?v=10"></scr'+'ipt><scr'+'ipt src="wooden-top-counter.js?v=10"></scr'+'ipt><scr'+'ipt src="preset-zh-tw.js?v=10"></scr'+'ipt>';
+ const scripts='<scr'+'ipt src="physics-core.js?v=10"></scr'+'ipt><scr'+'ipt src="presets-launch.js?v=10"></scr'+'ipt><scr'+'ipt src="physics-runtime.js?v=10"></scr'+'ipt><scr'+'ipt src="rod-breaker.js?v=10"></scr'+'ipt><scr'+'ipt src="wooden-top-counter.js?v=10"></scr'+'ipt><scr'+'ipt src="preset-zh-tw.js?v=10"></scr'+'ipt><scr'+'ipt src="split-top.js?v=1"></scr'+'ipt>';
  html=html.replace('</body>',scripts+'</body>');
  document.open();document.write(html);document.close();
 })().catch(error=>{
