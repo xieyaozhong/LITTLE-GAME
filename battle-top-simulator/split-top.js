@@ -1,4 +1,4 @@
-/* Twin Nova: separable two-top battle system */
+/* Twin Nova: automatic separable two-top battle system */
 (() => {
  const TWIN_KEY='twinNova';
  const TWIN_NOVA={
@@ -20,7 +20,7 @@
   const combo=host.querySelector('.combo-box');
   const ability=document.createElement('div');
   ability.className='combo-box split-ability';
-  ability.innerHTML='<strong>雙生分離機構</strong>承受強碰撞後，主體會釋放第二顆陀螺。兩顆各自保有角速度、碰撞體與勝負資格；同隊必須全部停止才算落敗。<div class="combo-tags"><span>碰撞觸發</span><span>2-IN-1</span><span>角動量分配</span></div>';
+  ability.innerHTML='<strong>雙生分離機構</strong>承受強碰撞後，主體會自動釋放第二顆陀螺。兩顆各自保有角速度、碰撞體與勝負資格；同隊必須全部停止才算落敗。<div class="combo-tags"><span>自動碰撞觸發</span><span>2-IN-1</span><span>角動量分配</span></div>';
   if(combo)combo.insertAdjacentElement('afterend',ability);else host.appendChild(ability);
  };
 
@@ -142,7 +142,7 @@
   }
  };
 
- function performSplit(parent,manual=false){
+ function performSplit(parent){
   if(!parent?.c?.splitTop||parent.hasSplit||parent.out||parent.burst)return false;
   parent.hasSplit=true;
   parent.splitPart='α';
@@ -197,14 +197,13 @@
   emit(child.x,child.y,child.c.primary,34,.92);
   wave((parent.x+child.x)/2,(parent.y+child.y)/2,parent.c.accent,72);
   shake=Math.max(shake,9.5);flash=Math.max(flash,.38);
-  addLog(`${parent.c.name} ${manual?'啟動':'承受強碰撞後觸發'}雙生分離：α 主體與 β 子陀螺開始協同戰鬥！`);
-  updateSplitButton();
+  addLog(`${parent.c.name} 承受強碰撞後自動觸發雙生分離：α 主體與 β 子陀螺開始協同戰鬥！`);
   return true;
  }
 
  function tryAutoSplit(top){
   if(!top?.c?.splitTop||top.hasSplit||top.splitCooldown>0||time<.75)return;
-  if(top.lastEnemyImpact>=86||top.burstMeter>=34)performSplit(top,false);
+  if(top.lastEnemyImpact>=86||top.burstMeter>=34)performSplit(top);
  }
 
  function sideEnergy(team){
@@ -235,7 +234,6 @@
   over.classList.remove('hide');
   over.innerHTML=`<div><div class="big" style="color:${lead?.c?.primary||'#fff'}">${sideName} 勝利</div><div class="small">${why}・${time.toFixed(1)} 秒</div></div>`;
   addLog(`${sideName} 以「${why}」取得勝利！`);
-  updateSplitButton();
  }
  result=function(){
   if(tops.length<2)return;
@@ -257,13 +255,6 @@
   }
  };
 
- function updateSplitButton(){
-  if(!splitButton)return;
-  const ready=running&&!paused&&tops.some(t=>t.c?.splitTop&&!t.hasSplit&&!t.out&&!t.burst);
-  splitButton.disabled=!ready;
-  splitButton.textContent=tops.some(t=>t.c?.splitTop&&t.hasSplit)?'已完成分裂':'手動分裂';
- }
-
  loop=function(ts){
   const frame=Math.min((ts-last)/1000||0,.05);last=ts;
   if(running&&!paused){
@@ -283,14 +274,9 @@
   drawScene();requestAnimationFrame(loop);
  };
 
- const buttonHost=document.querySelector('.btns');
- const splitButton=document.createElement('button');
- splitButton.id='split-action';splitButton.className='pause';splitButton.textContent='手動分裂';splitButton.disabled=true;
- buttonHost?.insertBefore(splitButton,document.querySelector('#reset'));
  const style=document.createElement('style');
- style.textContent='.split-ability{border-color:#8d5cff55;background:linear-gradient(135deg,#3bd5ff12,#8d5cff18)}@media(min-width:661px){.btns{grid-template-columns:1.35fr 1fr 1fr 1fr}}';
+ style.textContent='.split-ability{border-color:#8d5cff55;background:linear-gradient(135deg,#3bd5ff12,#8d5cff18)}';
  document.head.appendChild(style);
- splitButton.onclick=()=>{tops.filter(t=>t.c?.splitTop&&!t.hasSplit&&!t.out&&!t.burst).forEach(t=>performSplit(t,true));updateSplitButton()};
 
  document.querySelector('#start').onclick=()=>{
   tops=[new Top(0,cfg.p1),new Top(1,cfg.p2)];time=0;accumulator=0;running=true;paused=false;
@@ -299,17 +285,12 @@
   document.querySelector('#n1').textContent=cfg.p1.name;document.querySelector('#n2').textContent=cfg.p2.name;
   over.classList.remove('hide');over.innerHTML='<div><div class="big">3・2・1</div><div class="small">LET IT RIP!</div></div>';
   setTimeout(()=>over.classList.add('hide'),650);
-  addLog(`${cfg.p1.name}（${launchPointLabel(tops[0].launchPoint)}）對決 ${cfg.p2.name}（${launchPointLabel(tops[1].launchPoint)}）！${cfg.p1.splitTop||cfg.p2.splitTop?'雙生分離機構已待命。':'角動量與接觸摩擦開始計算。'}`);
-  updateSplitButton();
+  addLog(`${cfg.p1.name}（${launchPointLabel(tops[0].launchPoint)}）對決 ${cfg.p2.name}（${launchPointLabel(tops[1].launchPoint)}）！${cfg.p1.splitTop||cfg.p2.splitTop?'自動雙生分離機構已待命。':'角動量與接觸摩擦開始計算。'}`);
  };
- const previousPause=document.querySelector('#pause').onclick;
- document.querySelector('#pause').onclick=()=>{previousPause?.();updateSplitButton()};
- const previousReset=document.querySelector('#reset').onclick;
- document.querySelector('#reset').onclick=()=>{previousReset?.();updateSplitButton()};
 
  cfg.p1={...TWIN_NOVA,preset:TWIN_KEY};
  renderPanel('p1');renderPanel('p2');
  document.querySelector('#n1').textContent=cfg.p1.name;
  document.querySelector('#n2').textContent=cfg.p2.name;
- document.querySelector('#log').textContent='「雙生星核」已加入：強碰撞時會分裂成 α 主體與 β 子陀螺，兩者都會獨立旋轉、碰撞並參與勝負判定。';
+ document.querySelector('#log').textContent='「雙生星核」已加入：強碰撞時會自動分裂成 α 主體與 β 子陀螺，兩者都會獨立旋轉、碰撞並參與勝負判定。';
 })();
