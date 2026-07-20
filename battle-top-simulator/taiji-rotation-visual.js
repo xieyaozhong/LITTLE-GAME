@@ -1,4 +1,4 @@
-/* Taiji rotation visual enhancer: real spinning symbol and live Yin/Yang proportions */
+/* Taiji rotation visual enhancer: real spinning symbol with live Yin/Yang proportions */
 (() => {
   const PriorTop = Top;
 
@@ -10,7 +10,7 @@
   }
 
   function drawSpinningTaiji(top) {
-    const { white, black } = taijiShares(top);
+    const { white } = taijiShares(top);
     const yang = top.taijiMode === 'yang';
     const R = top.r * 0.59;
     const sign = Math.sign(top.omega) || 1;
@@ -82,29 +82,6 @@
       ctx.stroke();
     }
     ctx.restore();
-
-    // Replace the old status caption with the actual visual ratio.
-    const yinPct = Math.round(black * 100);
-    const yangPct = 100 - yinPct;
-    const label = `${yang ? '陽・發勁' : '陰・化勁'}　陰 ${yinPct}%｜陽 ${yangPct}%`;
-    const fontSize = Math.max(8, top.r * 0.265);
-    ctx.save();
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.font = `800 ${fontSize}px system-ui`;
-    const width = ctx.measureText(label).width + 12;
-    const y = top.y - top.r * 1.68;
-    ctx.fillStyle = 'rgba(4,7,13,.78)';
-    ctx.beginPath();
-    if (typeof ctx.roundRect === 'function') ctx.roundRect(top.x - width / 2, y - fontSize * 0.72, width, fontSize * 1.45, fontSize * 0.55);
-    else ctx.rect(top.x - width / 2, y - fontSize * 0.72, width, fontSize * 1.45);
-    ctx.fill();
-    ctx.globalCompositeOperation = 'screen';
-    ctx.fillStyle = alpha('#ffffff', 0.84 + pulse * 0.12);
-    ctx.shadowBlur = 9;
-    ctx.shadowColor = yang ? '#ffd978' : '#65e6c2';
-    ctx.fillText(label, top.x, y);
-    ctx.restore();
   }
 
   Top = class Top extends PriorTop {
@@ -114,7 +91,7 @@
         return;
       }
 
-      // Suppress only the old Taiji status caption; all other labels remain intact.
+      // Suppress the original Taiji status caption while keeping all other labels.
       const originalFillText = ctx.fillText;
       ctx.fillText = function(text, ...args) {
         if (typeof text === 'string' && (text.startsWith('陰・化勁') || text.startsWith('陽・發勁'))) return;
