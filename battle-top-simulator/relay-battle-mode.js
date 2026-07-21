@@ -1,8 +1,9 @@
-/* Relay Battle Mode V1: 2v2 sequential launch, one-special limit, and ordinary-top inheritance */
+/* Relay Battle Mode V2: 2v2 sequential launch, double-slot exclusives, one-special limit, and ordinary inheritance */
 (() => {
   const SPECIAL_FLAGS=[
     'splitTop','skyPouncer','phaseCloak','charmEngine','rageEngine','adaptiveMorph',
-    'omniObserver','taijiWheel','taijiMystic','sevenSword','timeStopEngine'
+    'omniObserver','taijiWheel','taijiMystic','sevenSword','timeStopEngine',
+    'juggernautEngine','relayDoubleSlot'
   ];
   const typeLabels={attack:'猛攻傳承',defense:'城壁傳承',stamina:'旋能傳承',balance:'調律傳承'};
   const state={
@@ -20,6 +21,7 @@
   const teamOf=top=>top?.teamIndex??(top?.index?1:0);
   const isSpecial=c=>!!c&&(c.tier==='SPECIAL'||String(c.label||'').includes('[SPECIAL]')||SPECIAL_FLAGS.some(flag=>!!c[flag]));
   const isOrdinary=c=>!!c&&!isSpecial(c);
+  const isDoubleSlot=c=>!!c?.relayDoubleSlot;
   const activeTop=top=>!!top&&!top.out&&!top.burst&&!top.skyStaminaDefeated&&!top.skyEnergyDepletedLatch&&!((top.energy||0)<=0&&mag(top.vx||0,top.vy||0)<24);
   const teamMembers=team=>tops.filter(top=>teamOf(top)===team);
   const sideDefeated=team=>{const members=teamMembers(team);return members.length>0&&members.every(top=>!activeTop(top))};
@@ -29,10 +31,11 @@
   },0);
   const presetEntries=()=>Object.entries(metaPresets).filter(([key])=>key!=='custom');
   const ordinaryFallback=(avoid='')=>{
-    const hit=presetEntries().find(([key,c])=>key!==avoid&&isOrdinary(c));
-    return hit?.[0]||presetEntries()[0]?.[0]||'custom';
+    const hit=presetEntries().find(([key,c])=>key!==avoid&&isOrdinary(c)&&!c.relayOnly&&!c.relayDoubleSlot);
+    return hit?.[0]||presetEntries().find(([,c])=>!c.relayOnly&&!c.relayDoubleSlot)?.[0]||'custom';
   };
   const configFromKey=key=>cloneConfig(metaPresets[key]||metaPresets.custom,key);
+  const leadConfig=team=>team===0?cfg.p1:cfg.p2;
 
   function inheritanceFrom(fallen){
     if(!isOrdinary(fallen))return null;
@@ -82,8 +85,15 @@
 
   function enforceSpecialLimit(team,changed='reserve'){
     if(!state.enabled)return true;
-    const lead=team===0?cfg.p1:cfg.p2;
-    const reserve=configFromKey(state.reserveKeys[team]);
+    const lead=leadConfig(team);
+    if(isDoubleSlot(lead))return true;
+    let reserve=configFromKey(state.reserveKeys[team]);
+    if(reserve.relayDoubleSlot||reserve.relayOnly){
+      const fallback=ordinaryFallback(lead.preset);
+      state.reserveKeys[team]=fallback;
+      reserve=configFromKey(fallback);
+      if(changed==='reserve')addLog(`雙打限定陀螺只能作為占用雙棒的先鋒，後援已改為 ${reserve.name}。`);
+    }
     if(!(isSpecial(lead)&&isSpecial(reserve)))return true;
     const fallback=ordinaryFallback(lead.preset);
     state.reserveKeys[team]=fallback;
@@ -96,18 +106,33 @@
 
   function validLineups(){
     for(let team=0;team<2;team++){
-      const lead=team===0?cfg.p1:cfg.p2;
+      const lead=leadConfig(team);
+      if(lead?.relayOnly&&!state.enabled)return false;
+      if(isDoubleSlot(lead))continue;
       const reserve=configFromKey(state.reserveKeys[team]);
+      if(reserve.relayDoubleSlot||reserve.relayOnly)return false;
       if([lead,reserve].filter(isSpecial).length>1)return false;
     }
     return true;
   }
 
+  function syncLeadOptions(id){
+    const host=$q('#'+id),select=host?.querySelector('select[data-k="preset"]');
+    if(!select)return;
+    [...select.options].forEach(option=>{
+      const c=metaPresets[option.value];
+      if(!c)return;
+      option.disabled=!!c.relayOnly&&!state.enabled;
+      if(c.relayDoubleSlot&&!option.textContent.includes('雙棒'))option.textContent=`[雙棒限定] ${c.name||c.label}`;
+    });
+  }
+
   function optionHtml(team){
-    const lead=team===0?cfg.p1:cfg.p2;
+    const lead=leadConfig(team);
     return presetEntries().map(([key,c])=>{
-      const blocked=isSpecial(lead)&&isSpecial(c);
-      const mark=isSpecial(c)?'★ ':'○ ';
+      const relayExclusive=!!c.relayOnly||!!c.relayDoubleSlot;
+      const blocked=relayExclusive||(isSpecial(lead)&&isSpecial(c));
+      const mark=relayExclusive?'Ⅱ ':isSpecial(c)?'★ ':'○ ';
       return `<option value="${key}" ${key===state.reserveKeys[team]?'selected':''} ${blocked?'disabled':''}>${mark}${c.name||c.label}</option>`;
     }).join('');
   }
@@ -123,6 +148,15 @@
     let box=host.querySelector('.relay-reserve-box');
     if(!box){box=document.createElement('div');box.className='combo-box relay-reserve-box';host.appendChild(box)}
     box.style.display=state.enabled?'block':'none';
+    box.classList.toggle('relay-double-slot-occupied',state.enabled&&isDoubleSlot(leadConfig(team)));
+    if(!state.enabled)return;
+
+    const lead=leadConfig(team);
+    if(isDoubleSlot(lead)){
+      box.innerHTML=`<strong>第 2 棒・已占用</strong><div class="relay-double-slot-card"><b>${lead.name}</b><span>單顆陀螺同時占用兩個棒次</span><small>沒有後援・沒有退場傳承・落敗即整隊落敗</small></div>`;
+      return;
+    }
+
     box.innerHTML=`<strong>後援陀螺・第 2 棒</strong><select id="relayReserve${team}" class="relay-reserve-select">${optionHtml(team)}</select><div class="relay-reserve-meta">${reserveSummary(team)}｜普通先鋒倒下後可留下傳承增益</div>`;
     const select=box.querySelector('select');
     select.disabled=!!running;
@@ -135,17 +169,25 @@
   }
 
   function renderAllReserve(){renderReserve(0);renderReserve(1)}
+  function singleModeBlocked(){return [cfg.p1,cfg.p2].some(c=>c?.relayOnly)}
 
   function renderRelayStatus(message='',kind=''){
     const host=$q('#relayBattleStatus');if(!host)return;
     if(!state.enabled){
-      host.innerHTML='單打模式：沿用目前 1 對 1 規則。';host.className='relay-status';
-      const start=$q('#start');if(start&&!running)start.disabled=false;
+      const blocked=singleModeBlocked();
+      host.innerHTML=blocked?'「鎮界巨神」屬於雙打限定陀螺，請切換到雙打車輪戰。':'單打模式：沿用目前 1 對 1 規則。';
+      host.className=`relay-status ${blocked?'error':''}`;
+      const start=$q('#start');if(start&&!running)start.disabled=blocked;
       return;
     }
     const valid=validLineups();
+    const doubleTeams=[0,1].filter(team=>isDoubleSlot(leadConfig(team)));
     host.className=`relay-status ${kind||(!valid?'error':'')}`;
-    host.innerHTML=message||`<b>車輪戰規則：</b>勝方留場，敗方換上後援。每隊最多一顆特殊陀螺。<br><span>猛攻：攻擊＋初速｜城壁：防禦＋抗爆｜旋能：耐力＋自轉｜調律：四項均衡提升</span>`;
+    if(message)host.innerHTML=message;
+    else if(doubleTeams.length){
+      const names=doubleTeams.map(team=>`${team===0?'藍隊':'紅隊'} ${leadConfig(team).name}`).join('、');
+      host.innerHTML=`<b>雙棒占用：</b>${names} 以單顆陀螺占用第 1 棒與第 2 棒；落敗即整隊落敗。<br><span>對手仍可使用正常先鋒與後援車輪戰。</span>`;
+    }else host.innerHTML='<b>車輪戰規則：</b>勝方留場，敗方換上後援。每隊最多一顆特殊陀螺。<br><span>猛攻：攻擊＋初速｜城壁：防禦＋抗爆｜旋能：耐力＋自轉｜調律：四項均衡提升</span>';
     const start=$q('#start');if(start&&!running)start.disabled=!valid;
   }
 
@@ -164,6 +206,8 @@
     $q('#relayBattleMode').onchange=e=>{
       state.enabled=e.target.value==='relay';
       if(state.enabled){enforceSpecialLimit(0,'mode');enforceSpecialLimit(1,'mode')}
+      renderPanel('p1');renderPanel('p2');
+      syncLeadOptions('p1');syncLeadOptions('p2');
       renderAllReserve();renderRelayStatus();
       const start=$q('#start');if(start)start.textContent=state.enabled?'開始車輪戰':'開始戰鬥';
     };
@@ -185,9 +229,7 @@
     const base=state.lineups[team][nextIndex];
     const data=inheritedConfig(base,buff);
     const top=new Top(team,data);
-    top.teamIndex=team;
-    top.relayOrder=nextIndex;
-    applyInheritance(top,buff);
+    top.teamIndex=team;top.relayOrder=nextIndex;applyInheritance(top,buff);
     tops.push(top);
     tops.sort((a,b)=>teamOf(a)-teamOf(b)||(a.relayOrder||0)-(b.relayOrder||0));
     return top;
@@ -209,8 +251,7 @@
     const removed=teamMembers(team);
     tops=tops.filter(top=>teamOf(top)!==team);
     cleanRemovedReferences(removed);
-    state.active[team]++;
-    state.inheritance[team]=buff;
+    state.active[team]++;state.inheritance[team]=buff;
     const newcomer=spawnRelayTop(team,buff);
     const teamName=team===0?'藍隊':'紅隊';
     const inheritanceText=buff?`，繼承「${buff.label}」：${buff.detail}`:'；特殊先鋒不產生傳承增益';
@@ -224,12 +265,10 @@
   }
 
   function finishRelay(win,why){
-    running=false;paused=false;
-    score[win]++;
+    running=false;paused=false;score[win]++;
     $q('#s1').textContent=score[0];$q('#s2').textContent=score[1];
     const start=$q('#start');start.disabled=false;start.textContent='再戰一場';
-    setSetupLocked(false);
-    $q('#pause').disabled=true;
+    setSetupLocked(false);$q('#pause').disabled=true;
     const survivor=teamMembers(win).find(activeTop)||teamMembers(win)[0];
     const sideName=win===0?'藍隊':'紅隊';
     over.classList.remove('hide');
@@ -240,8 +279,7 @@
   function finishRelayDraw(){
     running=false;paused=false;
     const start=$q('#start');start.disabled=false;start.textContent='再戰一場';
-    setSetupLocked(false);
-    $q('#pause').disabled=true;
+    setSetupLocked(false);$q('#pause').disabled=true;
     over.classList.remove('hide');
     over.innerHTML=`<div><div class="big">雙方同時退場</div><div class="small">車輪戰平手・${time.toFixed(1)} 秒</div></div>`;
     addLog('雙方最後一顆陀螺同時失去戰鬥能力，本場車輪戰平手。');
@@ -252,41 +290,46 @@
     previousRenderPanel(id);
     const team=id==='p1'?0:1;
     if(state.enabled)enforceSpecialLimit(team,'lead');
-    renderReserve(team);renderRelayStatus();
+    syncLeadOptions(id);renderReserve(team);renderRelayStatus();
   };
 
   insertModeUI();
   state.reserveKeys[0]=ordinaryFallback(cfg.p1?.preset);
   state.reserveKeys[1]=ordinaryFallback(cfg.p2?.preset);
-  renderAllReserve();
+  renderAllReserve();syncLeadOptions('p1');syncLeadOptions('p2');
 
   const previousStart=$q('#start').onclick;
   $q('#start').onclick=()=>{
-    if(!state.enabled){state.lineups=[[],[]];state.active=[0,0];return previousStart?.()}
+    if(!state.enabled){
+      state.lineups=[[],[]];state.active=[0,0];
+      if(singleModeBlocked()){renderRelayStatus('雙打限定陀螺無法在單打模式發射。','error');return}
+      return previousStart?.();
+    }
     enforceSpecialLimit(0,'start');enforceSpecialLimit(1,'start');
-    if(!validLineups()){renderRelayStatus('每隊最多只能選擇一顆特殊陀螺，請調整陣容。','error');return}
+    if(!validLineups()){renderRelayStatus('每隊最多只能選擇一顆特殊陀螺；雙棒限定陀螺只能占用整隊兩個棒次。','error');return}
+    const leads=[cloneConfig(cfg.p1,cfg.p1.preset),cloneConfig(cfg.p2,cfg.p2.preset)];
     state.lineups=[
-      [cloneConfig(cfg.p1,cfg.p1.preset),configFromKey(state.reserveKeys[0])],
-      [cloneConfig(cfg.p2,cfg.p2.preset),configFromKey(state.reserveKeys[1])]
+      isDoubleSlot(leads[0])?[leads[0]]:[leads[0],configFromKey(state.reserveKeys[0])],
+      isDoubleSlot(leads[1])?[leads[1]]:[leads[1],configFromKey(state.reserveKeys[1])]
     ];
     state.active=[0,0];state.inheritance=[null,null];state.legStartedAt=0;state.replacing=false;
     tops=[new Top(0,state.lineups[0][0]),new Top(1,state.lineups[1][0])];
     tops[0].teamIndex=0;tops[1].teamIndex=1;tops[0].relayOrder=0;tops[1].relayOrder=0;
     time=0;accumulator=0;running=true;paused=false;particles=[];waves=[];shake=0;flash=0;
     $q('#start').disabled=true;$q('#pause').disabled=false;$q('#pause').textContent='暫停';setSetupLocked(true);
-    $q('#n1').textContent=`${state.lineups[0][0].name}・第 1 棒`;
-    $q('#n2').textContent=`${state.lineups[1][0].name}・第 1 棒`;
+    $q('#n1').textContent=isDoubleSlot(leads[0])?`${leads[0].name}・雙棒占用`:`${leads[0].name}・第 1 棒`;
+    $q('#n2').textContent=isDoubleSlot(leads[1])?`${leads[1].name}・雙棒占用`:`${leads[1].name}・第 1 棒`;
     over.classList.remove('hide');
     over.innerHTML='<div><div class="big">2 VS 2</div><div class="small">車輪戰・先鋒發射</div></div>';
     setTimeout(()=>{if(running)over.classList.add('hide')},720);
-    addLog(`雙打車輪戰開始：${state.lineups[0][0].name} 對決 ${state.lineups[1][0].name}。勝方留場，敗方後援接替。`);
+    const slotText=leads.map((c,i)=>isDoubleSlot(c)?`${i?'紅隊':'藍隊'} ${c.name} 占用雙棒`:null).filter(Boolean).join('；');
+    addLog(`雙打車輪戰開始：${leads[0].name} 對決 ${leads[1].name}。${slotText||'勝方留場，敗方後援接替。'}`);
   };
 
   const previousReset=$q('#reset').onclick;
   $q('#reset').onclick=()=>{
     state.active=[0,0];state.lineups=[[],[]];state.inheritance=[null,null];state.legStartedAt=0;state.replacing=false;
-    previousReset?.();
-    setSetupLocked(false);renderRelayStatus();
+    previousReset?.();setSetupLocked(false);renderRelayStatus();
     const start=$q('#start');if(start)start.textContent=state.enabled?'開始車輪戰':'開始戰鬥';
   };
 
@@ -302,11 +345,8 @@
     }
     if(!lost0&&!lost1)return;
     state.replacing=true;
-    const reason0=timeJudge?'時間動能判定':defeatReason(0);
-    const reason1=timeJudge?'時間動能判定':defeatReason(1);
-    const can0=lost0&&state.active[0]+1<state.lineups[0].length;
-    const can1=lost1&&state.active[1]+1<state.lineups[1].length;
-
+    const reason0=timeJudge?'時間動能判定':defeatReason(0),reason1=timeJudge?'時間動能判定':defeatReason(1);
+    const can0=lost0&&state.active[0]+1<state.lineups[0].length,can1=lost1&&state.active[1]+1<state.lineups[1].length;
     if(lost0&&lost1){
       if(can0&&can1){replaceTeam(0,reason0);replaceTeam(1,reason1);state.replacing=false;return}
       if(can0&&!can1){replaceTeam(0,reason0);finishRelay(0,reason1);state.replacing=false;return}
@@ -321,16 +361,12 @@
   const PreviousTop=Top;
   Top=class Top extends PreviousTop{
     constructor(index,data){super(index,data);this.relayInheritancePulse=0}
-    update(dt,opponent){
-      super.update(dt,opponent);
-      this.relayInheritancePulse=Math.max(0,(this.relayInheritancePulse||0)-dt*.28);
-    }
+    update(dt,opponent){super.update(dt,opponent);this.relayInheritancePulse=Math.max(0,(this.relayInheritancePulse||0)-dt*.28)}
     draw(){
       super.draw();
       if(!this.relayInheritance||this.out||this.burst)return;
       const palette={attack:'#ffb36b',defense:'#8fe5ff',stamina:'#8fffc0',balance:'#d7b1ff'};
-      const color=palette[this.relayInheritance]||this.c.accent;
-      const pulse=.5+.5*Math.sin(time*5.8),p=.45+.35*Math.min(1,this.relayInheritancePulse||0);
+      const color=palette[this.relayInheritance]||this.c.accent,pulse=.5+.5*Math.sin(time*5.8),p=.45+.35*Math.min(1,this.relayInheritancePulse||0);
       ctx.save();ctx.translate(this.x,this.y);ctx.rotate(-time*.42);ctx.globalCompositeOperation='screen';ctx.strokeStyle=alpha(color,.18+p*.34+pulse*.10);ctx.lineWidth=1.4;ctx.shadowBlur=12;ctx.shadowColor=color;ctx.setLineDash([5,7]);ctx.beginPath();ctx.arc(0,0,this.r*(1.30+pulse*.05),0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();
     }
   };
@@ -342,8 +378,12 @@
     .relay-mode-control select,.relay-reserve-select{min-width:190px;padding:8px 10px;border-radius:10px;border:1px solid #ffffff1f;background:#0d1527;color:#fff}
     .relay-status{margin-top:8px;color:#9fb0cf;font-size:11px;line-height:1.55}.relay-status b{color:#ffd277}.relay-status.warn{color:#ffd38b}.relay-status.error{color:#ff8fa4}
     .relay-reserve-box{border-color:#ffffff25!important;background:linear-gradient(135deg,#ffffff0d,#41ccff0b)!important}.relay-reserve-box select{width:100%;margin:5px 0}.relay-reserve-meta{font-size:10px;color:#9fb0cf;margin-top:4px}
+    .relay-double-slot-occupied{border-color:#8f6dff66!important;background:linear-gradient(145deg,#8f6dff18,#171329)!important}
+    .relay-double-slot-card{display:grid;gap:4px}.relay-double-slot-card b{color:#fff;font-size:14px}.relay-double-slot-card span{color:#ffd978;font-size:11px;font-weight:900}.relay-double-slot-card small{color:#aab3c7;font-size:10px;line-height:1.45}
     @media(max-width:660px){.relay-mode-control label{align-items:stretch;flex-direction:column}.relay-mode-control select,.relay-reserve-select{width:100%;min-width:0}}
   `;
   document.head.appendChild(style);
-  document.documentElement.dataset.relayBattleMode='v1';
+  window.__relayBattleState=state;
+  window.__relayBattleAPI={isSpecial,isDoubleSlot,renderAllReserve,renderRelayStatus};
+  document.documentElement.dataset.relayBattleMode='v2';
 })();
