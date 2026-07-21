@@ -1,4 +1,4 @@
-/* Worldpress Colossus V2: periodic arena-wide seismic skill with visible windup */
+/* Worldpress Colossus V3: periodic arena-wide seismic skill with visible windup and light enemy bounce */
 (() => {
   const KEY='worldpressColossus';
   if(metaPresets?.[KEY])metaPresets[KEY].rank='雙棒占用・巨軀鎮壓・地脈震撼';
@@ -13,7 +13,7 @@
     const host=document.querySelector('#'+id),c=cfg[id];
     if(!host||!c?.juggernautEngine)return;
     const ability=host.querySelector('.colossus-ability');
-    if(ability)ability.innerHTML='<strong>雙棒限定・鎮界重軀</strong>超大直徑與高慣量形成近身壓迫場；並會不定期蓄積地脈，發動「鎮界震撼」震動整座場地，使地面敵人減速、失衡並流失少量體力。震動前會出現裂紋與收縮光環提示，飛行中的陀螺只受輕微亂流。<div class="combo-tags"><span>占用兩棒</span><span>重壓場</span><span>全場震動</span><span>可見前搖</span></div>';
+    if(ability)ability.innerHTML='<strong>雙棒限定・鎮界重軀</strong>超大直徑與高慣量形成近身壓迫場；並會不定期蓄積地脈，發動「鎮界震撼」震動整座場地，使地面敵人短暫彈起、減速、失衡並流失少量體力。震動前會出現裂紋與收縮光環提示，飛行中的陀螺只受輕微亂流。<div class="combo-tags"><span>占用兩棒</span><span>重壓場</span><span>全場震動</span><span>輕微彈起</span></div>';
   };
 
   const PreviousTop=Top;
@@ -25,6 +25,9 @@
       this.colossusQuakePulse=0;
       this.colossusQuakeSeed=rnd(0,Math.PI*2);
       this.colossusQuakeCount=0;
+      this.colossusQuakeHop=0;
+      this.colossusQuakeHopVelocity=0;
+      this.colossusQuakeLandingPulse=0;
     }
     beginColossusQuake(){
       if(!this.c?.juggernautEngine||!active(this)||this.colossusQuakeWindup>0)return;
@@ -63,13 +66,34 @@
         enemy.omega*=.974;enemy.spin=enemy.omega;
         enemy.energy=Math.max(0,(enemy.energy||0)-1.10*strength);
         enemy.tiltVel+=(Math.sign(enemy.omega)||1)*(.13+.05*strength)/Math.max(.72,enemy.tip?.stability||1);
-        enemy.lift=clamp((enemy.lift||0)+.035*strength,0,1);
+        enemy.lift=clamp(Math.max(enemy.lift||0,.055)+.075*strength,0,.28);
+        enemy.colossusQuakeHop=Math.max(enemy.colossusQuakeHop||0,.015);
+        enemy.colossusQuakeHopVelocity=Math.max(enemy.colossusQuakeHopVelocity||0,1.72+.24*strength);
+        enemy.colossusQuakeLandingPulse=0;
         enemy.burstMeter=(enemy.burstMeter||0)+.55*strength;
+        emit(enemy.x,enemy.y,'#fff0b0',8,.42,'streak');
       });
-      addLog(`${this.c.name} 發動「鎮界震撼」！競技盤整體震動，地面上的敵方陀螺受到失衡與減速！`);
+      addLog(`${this.c.name} 發動「鎮界震撼」！競技盤整體震動，地面上的敵方陀螺被輕微震起並陷入失衡！`);
+    }
+    updateQuakeHop(dt){
+      this.colossusQuakeLandingPulse=Math.max(0,(this.colossusQuakeLandingPulse||0)-dt*2.8);
+      if((this.colossusQuakeHop||0)<=0&&(this.colossusQuakeHopVelocity||0)<=0)return;
+      this.colossusQuakeHopVelocity-=7.6*dt;
+      this.colossusQuakeHop=Math.max(0,(this.colossusQuakeHop||0)+this.colossusQuakeHopVelocity*dt);
+      if(this.colossusQuakeHop<=0&&this.colossusQuakeHopVelocity<0){
+        this.colossusQuakeHop=0;
+        this.colossusQuakeHopVelocity=0;
+        this.colossusQuakeLandingPulse=1;
+        if(!this.out&&!this.burst){
+          wave(this.x,this.y,'#ffe6a6',24);
+          emit(this.x,this.y,'#fff1c9',7,.34);
+          this.tiltVel+=(Math.sign(this.omega)||1)*.025/Math.max(.72,this.tip?.stability||1);
+        }
+      }
     }
     update(dt,opponent){
       super.update(dt,opponent);
+      this.updateQuakeHop(dt);
       this.colossusQuakePulse=Math.max(0,(this.colossusQuakePulse||0)-dt*.72);
       if(!this.c?.juggernautEngine||!active(this))return;
       if(this.colossusQuakeWindup>0){
@@ -119,9 +143,35 @@
       }
       ctx.restore();
     }
+    drawQuakeHopShadow(){
+      const hop=clamp(this.colossusQuakeHop||0,0,.35),landing=clamp(this.colossusQuakeLandingPulse||0,0,1);
+      if(hop<=0&&landing<=0)return;
+      ctx.save();
+      ctx.translate(this.x,this.y);
+      ctx.globalCompositeOperation='source-over';
+      ctx.fillStyle=`rgba(0,0,0,${.12+hop*.42})`;
+      ctx.beginPath();
+      ctx.ellipse(0,this.r*.18,this.r*(.68-hop*.42),this.r*(.22-hop*.07),0,0,Math.PI*2);
+      ctx.fill();
+      if(landing>0){
+        ctx.globalCompositeOperation='screen';
+        ctx.strokeStyle=alpha('#ffe6a6',landing*.36);
+        ctx.lineWidth=1+landing*2;
+        ctx.beginPath();ctx.ellipse(0,this.r*.16,this.r*(.72+(1-landing)*.38),this.r*(.24+(1-landing)*.10),0,0,Math.PI*2);ctx.stroke();
+      }
+      ctx.restore();
+    }
     draw(){
       this.drawQuakeField();
-      super.draw();
+      const hop=clamp(this.colossusQuakeHop||0,0,.35);
+      this.drawQuakeHopShadow();
+      if(hop>0){
+        const height=hop*this.r*1.55;
+        ctx.save();
+        ctx.translate(0,-height);
+        super.draw();
+        ctx.restore();
+      }else super.draw();
       if(!this.c?.juggernautEngine||this.out||this.burst||this.colossusQuakeWindup<=0)return;
       const q=1-clamp(this.colossusQuakeWindup/.82,0,1);
       ctx.save();ctx.translate(this.x,this.y);ctx.globalCompositeOperation='screen';ctx.strokeStyle=alpha('#fff1b0',.30+q*.42);ctx.lineWidth=2+q*2.5;ctx.shadowBlur=18;ctx.shadowColor=this.c.primary;
@@ -130,5 +180,5 @@
     }
   };
 
-  document.documentElement.dataset.worldpressQuake='v1';
+  document.documentElement.dataset.worldpressQuake='v2';
 })();
