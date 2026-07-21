@@ -1,11 +1,14 @@
-/* Sky Pouncer stamina-loss fix: zero energy is an immediate stamina defeat even during flight or high-speed motion */
+/* Sky Pouncer stamina-loss fix V2: exhausted state is latched and resolved after every combat module */
 (() => {
   function isExhaustedSky(top){
-    return !!top?.c?.skyPouncer&&!top.out&&!top.burst&&((top.energy||0)<=0||top.skyStaminaDefeated);
+    return !!top?.c?.skyPouncer&&!top.out&&!top.burst&&(
+      top.skyEnergyDepletedLatch||top.skyStaminaDefeated||(top.energy||0)<=0
+    );
   }
   function forceExhaustion(top){
     if(!isExhaustedSky(top))return false;
     const first=!top.skyStaminaDefeated;
+    top.skyEnergyDepletedLatch=true;
     top.skyStaminaDefeated=true;
     top.energy=0;
     top.omega=0;top.spin=0;
@@ -24,6 +27,7 @@
       emit(top.x,top.y,top.c.primary,28,.72,'streak');
       wave(top.x,top.y,top.c.accent,54);
       top.skyEndurancePulse=1;
+      addLog(`${top.c.name} 的飛行核心體力耗盡，立即失速停止！`);
     }
     return true;
   }
@@ -35,12 +39,12 @@
       this.skyStaminaDefeated=false;
     }
     update(dt,opponent){
-      if(this.c?.skyPouncer&&this.skyStaminaDefeated){
+      if(this.c?.skyPouncer&&(this.skyStaminaDefeated||this.skyEnergyDepletedLatch)){
         forceExhaustion(this);
         return;
       }
       super.update(dt,opponent);
-      if(this.c?.skyPouncer&&(this.energy||0)<=0)forceExhaustion(this);
+      if(this.c?.skyPouncer&&((this.energy||0)<=0||this.skyEnergyDepletedLatch))forceExhaustion(this);
     }
   };
 
@@ -50,5 +54,5 @@
     return previousResult();
   };
 
-  document.documentElement.dataset.skyPouncerStaminaLossFix='v1';
+  document.documentElement.dataset.skyPouncerStaminaLossFix='v2';
 })();
