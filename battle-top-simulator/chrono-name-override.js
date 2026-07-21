@@ -1,12 +1,14 @@
 /* Chrono name override: rename the time-stop top without changing its internal key or mechanics */
 (() => {
  const KEY='chronoClockEmperor';
- const OLD_ZH='時界鐘皇';
- const OLD_EN='Chrono Clock Emperor';
- const NAME_ZH='零時帝輪';
- const NAME_EN='Zero Hour Emperor';
+ const LEGACY_NAMES=['時界鐘皇','Chrono Clock Emperor','零時帝輪','Zero Hour Emperor'];
+ const NAME_ZH='克羅納斯';
+ const NAME_EN='Cronus';
  const LABEL=`[SPECIAL] ${NAME_ZH}｜${NAME_EN}`;
 
+ function renameText(value){
+  return LEGACY_NAMES.reduce((text,name)=>text.replaceAll(name,name.includes(' ')||/^[A-Za-z]/.test(name)?NAME_EN:NAME_ZH),String(value));
+ }
  function renameConfig(c){
   if(!c||(!c.timeStopEngine&&c.preset!==KEY))return;
   c.name=NAME_ZH;
@@ -19,20 +21,13 @@
   renameConfig(cfg.p1);
   renameConfig(cfg.p2);
  }
- if(Array.isArray(tops))tops.forEach(renameConfig);
+ if(Array.isArray(tops))tops.forEach(top=>renameConfig(top?.c||top));
 
  const previousAddLog=addLog;
- addLog=function(message){
-  const renamed=String(message)
-   .replaceAll(OLD_ZH,NAME_ZH)
-   .replaceAll(OLD_EN,NAME_EN);
-  return previousAddLog(renamed);
- };
+ addLog=function(message){return previousAddLog(renameText(message))};
 
  document.querySelectorAll('option').forEach(option=>{
-  if(option.value===KEY||option.textContent.includes(OLD_ZH)||option.textContent.includes(OLD_EN)){
-   option.textContent=LABEL;
-  }
+  if(option.value===KEY||LEGACY_NAMES.some(name=>option.textContent.includes(name)))option.textContent=LABEL;
  });
 
  ['p1','p2'].forEach(id=>{
@@ -41,5 +36,7 @@
   if(nameNode&&cfg?.[id]?.timeStopEngine)nameNode.textContent=NAME_ZH;
  });
 
- document.documentElement.dataset.chronoDisplayName='zero-hour-emperor-v1';
+ const log=document.querySelector('#log');
+ if(log)log.textContent=renameText(log.textContent);
+ document.documentElement.dataset.chronoDisplayName='cronus-v2';
 })();
