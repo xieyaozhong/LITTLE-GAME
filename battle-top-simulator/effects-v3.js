@@ -144,7 +144,7 @@
   collide=function(a,b){
     const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy),touch=(a.r||0)+(b.r||0)+1.5;
     let sample=null;
-    if(d>0&&d<touch&&!a.out&&!b.out&&!a.burst&&!b.burst){
+    if(d>0&&d<touch&&!a.out&&!b.out&&!a.burst&&!b.burst&&!a.colossusJumpGhost&&!b.colossusJumpGhost){
       const nx=dx/d,ny=dy/d,tx=-ny,ty=nx,rvx=b.vx-a.vx,rvy=b.vy-a.vy;
       const closingN=Math.max(0,-(rvx*nx+rvy*ny)),tangent=rvx*tx+rvy*ty,spinA=(a.omega??a.spin??0)*(a.r||0),spinB=(b.omega??b.spin??0)*(b.r||0);
       const wa=Math.max(1,a.c?.w||70),wb=Math.max(1,b.c?.w||70),reducedMass=wa*wb/(wa+wb);
