@@ -59,7 +59,14 @@
     if(kind==='taiji')return top.taijiMode||'idle';
     if(kind==='sword')return top.swordState&&top.swordState!=='idle'?`${top.swordArt||'art'}:${top.swordState}`:'idle';
     if(kind==='chrono')return top.timeFrozenBy?'frozen':top.chronoState||'idle';
-    if(kind==='colossus')return (top.colossusQuakeWindup||0)>0?'windup':(top.colossusQuakePulse||0)>.72?'quake':'idle';
+    if(kind==='colossus'){
+      const state=top.colossusSkillState||'idle';
+      if(state!=='idle')return state;
+      if((top.colossusQuakeWindup||0)>0)return 'quakeCrouch';
+      if((top.colossusQuakePulse||0)>.03)return 'quakeWaves';
+      if(top.colossusVortexActive||(top.colossusVortexPulse||0)>.03)return 'vortexActive';
+      return 'idle';
+    }
     if(kind==='breaker')return `hits:${top.counterHits||0}`;
     if(kind==='wooden')return (top.woodAuraCooldown||0)>.42?'aura':'idle';
     return 'idle';
@@ -96,6 +103,11 @@
     if(!active(top)&&!top?.splitPart)return;
     const p=profile(top,kind),fxColor=color||p.color,fxMark=mark||p.mark,motion=motionOf(top);
     const team=top.teamIndex??(top.index?1:0),state=stateOf(top,kind);
+    const physics={kind,state,phase:'release',x:top.x,y:top.y,vx:motion.vx,vy:motion.vy,speed:motion.speed,angle:motion.angle,omega:motion.spin,spinSign:motion.dir,mass:motion.mass,energy:motion.energy,lift:motion.lift,strength,bond};
+    if(kind==='colossus'){
+      window.dispatchEvent(new CustomEvent('arena-skill-physics',{detail:{...physics,owner:top?.c?.name||'top'}}));
+      return;
+    }
     skillBursts.push({
       x:top.x,y:top.y,life:1,color:fxColor,secondary:top?.c?.accent||top?.c?.secondary||'#ffffff',
       label,mark:fxMark,kind,state,bond,strength,team,angle:motion.angle,radius:top.r||18,
@@ -103,11 +115,10 @@
       seed:((top.index||0)+1)*1.731+time*.37
     });
     if(skillBursts.length>6)skillBursts.shift();
-    const forceful=kind==='rage'||kind==='colossus'||kind==='breaker'||kind==='wooden'||kind==='sky';
+    const forceful=kind==='rage'||kind==='breaker'||kind==='wooden'||kind==='sky';
     const cameraImpulse=(forceful ? .85 : .12)*strength*motion.mass*(.55+clamp(motion.speed/260,0,.75));
     shake=Math.max(shake,bond?1.6:cameraImpulse);
     flash=Math.max(flash,bond ? .035 : forceful ? .018 : .008);
-    const physics={kind,state,phase:'release',x:top.x,y:top.y,vx:motion.vx,vy:motion.vy,speed:motion.speed,angle:motion.angle,omega:motion.spin,spinSign:motion.dir,mass:motion.mass,energy:motion.energy,lift:motion.lift,strength,bond};
     emitSkillEvent(top,{label,color:fxColor,mark:fxMark,bond,kind,angle:motion.angle});
     window.dispatchEvent(new CustomEvent('arena-skill-physics',{detail:{...physics,owner:top?.c?.name||'top'}}));
   }
@@ -214,10 +225,6 @@
     for(let i=0;i<4;i++){ctx.save();ctx.rotate(i*Math.PI/2);ctx.fillRect(-r*.055,-r*1.43,r*.11,r*.32);ctx.restore()}
     ctx.save();ctx.rotate(hand);ctx.beginPath();ctx.moveTo(-r*.06,r*.08);ctx.lineTo(0,-r*1.02);ctx.lineTo(r*.06,r*.08);ctx.closePath();ctx.fill();ctx.restore();ctx.save();ctx.rotate(stopped?0:-time*.48);ctx.fillRect(-r*.045,-r*.68,r*.09,r*.72);ctx.restore();
   }
-  function drawColossus(top,pulse){
-    const r=top.r,quake=clamp(Math.max(top.colossusQuakePulse||0,top.colossusPressurePulse||0),0,1);ctx.fillStyle=alpha(top.c.primary,.10+quake*.20);ctx.beginPath();ctx.ellipse(0,r*.18,r*(1.38+quake*.26),r*(.44+quake*.08),0,0,Math.PI*2);ctx.fill();
-    for(let i=0;i<4;i++){ctx.save();ctx.rotate(i*Math.PI/2+(top.colossusQuakeSeed||0));ctx.translate(r*(.90+quake*.24),0);ctx.fillStyle=alpha(i%2?top.c.primary:top.c.accent,.14+quake*.24);ctx.fillRect(-r*.22,-r*.10,r*.44,r*.20);ctx.restore()}
-  }
   function drawBreaker(top,pulse){
     const r=top.r,m=motionOf(top),charge=clamp(top.counterCharge||0,0,1);ctx.rotate(m.angle);fillGlow(top.c.primary,r*(1.08+charge*.18),.06+charge*.08);
     for(const side of [-1,1]){ctx.save();ctx.translate(r*(.20+charge*.10),side*r*(.38+charge*.08));ctx.rotate(side*.22);ctx.fillStyle=alpha(top.c.primary,.20+charge*.30+pulse*.08);bladeShape(r*(1.12+charge*.48),r*.30);ctx.fill();ctx.restore()}
@@ -229,11 +236,10 @@
   }
 
   function drawSignature(top){
-    const kind=kindOf(top);if(!kind||!active(top))return;
-    if(kind==='colossus'&&Math.max(top.colossusQuakePulse||0,top.colossusPressurePulse||0,top.colossusQuakeWindup||0)<=.03)return;
+    const kind=kindOf(top);if(!kind||kind==='colossus'||!active(top))return;
     const pulse=.5+.5*Math.sin(time*(kind==='chrono'?2.4:4.2)+(top.fxHuePhase||top.index||0)),state=stateOf(top,kind),idle=state==='idle'||state==='hits:0';
     ctx.save();ctx.translate(top.x,top.y);ctx.globalCompositeOperation='screen';ctx.globalAlpha=idle?(reduceMotion ? .24 : .32):.92;
-    if(kind==='twin')drawTwin(top,pulse);else if(kind==='sky')drawSky(top,pulse);else if(kind==='phase')drawPhase(top,pulse);else if(kind==='charm')drawCharm(top,pulse);else if(kind==='rage')drawRage(top,pulse);else if(kind==='morph')drawMorph(top,pulse);else if(kind==='taiji')drawTaiji(top,pulse);else if(kind==='sword')drawSword(top,pulse);else if(kind==='chrono')drawChrono(top,pulse);else if(kind==='colossus')drawColossus(top,pulse);else if(kind==='breaker')drawBreaker(top,pulse);else if(kind==='wooden')drawWood(top,pulse);
+    if(kind==='twin')drawTwin(top,pulse);else if(kind==='sky')drawSky(top,pulse);else if(kind==='phase')drawPhase(top,pulse);else if(kind==='charm')drawCharm(top,pulse);else if(kind==='rage')drawRage(top,pulse);else if(kind==='morph')drawMorph(top,pulse);else if(kind==='taiji')drawTaiji(top,pulse);else if(kind==='sword')drawSword(top,pulse);else if(kind==='chrono')drawChrono(top,pulse);else if(kind==='breaker')drawBreaker(top,pulse);else if(kind==='wooden')drawWood(top,pulse);
     ctx.restore();
   }
 
@@ -264,6 +270,7 @@
     if(kind==='rage'&&after==='idle')should=false;
     if(kind==='chrono'&&after==='idle')should=false;
     if(kind==='twin'&&after==='idle')should=false;
+    if(kind==='colossus')should=before==='idle'&&['quakeCrouch','quakeWaves','vortexWindup','vortexActive'].includes(after);
     if(should)triggerSkill(top,kind,skillLabel(top,kind,after),{strength:kind==='colossus'?1.65:kind==='rage'?1.3:1});
   }
 
@@ -331,8 +338,6 @@
       const selected=Math.min(6,Math.floor(progress*7));for(let i=0;i<7;i++){ctx.save();ctx.rotate(i*Math.PI*2/7);ctx.translate(0,-r*.36);ctx.rotate(Math.PI/2);ctx.fillStyle=alpha(i===selected?accent:fx.color,i===selected ? .20+power*.36 : .08+power*.13);if(i===selected){bladeShape(r*.34,r*.085);ctx.fill()}else ctx.fillRect(-r*.07,-r*.018,r*.14,r*.036);ctx.restore()}
     }else if(kind==='chrono'){
       ctx.fillStyle=alpha(fx.color,.08+power*.25);ctx.beginPath();ctx.arc(0,0,r*.44,0,Math.PI*2);ctx.fill();ctx.fillStyle=alpha(accent,.14+power*.34);for(let i=0;i<4;i++){ctx.save();ctx.rotate(i*Math.PI/2);ctx.fillRect(-r*.025,-r*.48,r*.05,r*.12);ctx.restore()}ctx.save();ctx.rotate(-Math.PI/2+spin*progress*.5);ctx.beginPath();ctx.moveTo(-r*.025,r*.04);ctx.lineTo(0,-r*.30);ctx.lineTo(r*.025,r*.04);ctx.fill();ctx.restore();ctx.fillRect(-r*.018,-r*.19,r*.036,r*.21);
-    }else if(kind==='colossus'){
-      ctx.fillStyle=alpha(fx.color,.10+power*.26);ctx.beginPath();ctx.ellipse(0,r*.04,r*.50,r*.18,0,0,Math.PI*2);ctx.fill();for(let i=0;i<4;i++){ctx.save();ctx.rotate(i*Math.PI/2);ctx.translate(r*.34,0);ctx.fillStyle=alpha(i%2?accent:fx.color,.12+power*.30);ctx.fillRect(-r*.10,-r*.045,r*.20,r*.09);ctx.restore()}
     }else if(kind==='breaker'){
       for(const side of [-1,1]){ctx.save();ctx.translate(0,side*r*.14);ctx.rotate(side*.18);ctx.fillStyle=alpha(fx.color,.14+power*.36);bladeShape(r*.62,r*.13);ctx.fill();ctx.restore()}
     }else{
@@ -346,7 +351,7 @@
     const bloom=ctx.createRadialGradient(0,0,0,0,0,r*.54);bloom.addColorStop(0,alpha('#ffffff',power*.11));bloom.addColorStop(.24,alpha(fx.secondary,power*.10));bloom.addColorStop(.62,alpha(fx.color,power*.06));bloom.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=bloom;ctx.beginPath();ctx.arc(0,0,r*.54,0,Math.PI*2);ctx.fill();
     ctx.shadowColor=fx.color;ctx.shadowBlur=4+power*8;ctx.lineCap='round';ctx.save();ctx.rotate(fx.angle||0);
     if((fx.speed||0)>70)drawWake(r*(.42+clamp(fx.speed/360,0,.52)),r*.19,fx.color,.07+power*.18);
-    const forceful=fx.kind==='rage'||fx.kind==='colossus'||fx.kind==='breaker'||fx.kind==='wooden'||fx.kind==='sky';
+    const forceful=fx.kind==='rage'||fx.kind==='breaker'||fx.kind==='wooden'||fx.kind==='sky';
     if(forceful){ctx.strokeStyle=alpha(fx.secondary,power*.22);ctx.lineWidth=.8+power*1.1;ctx.beginPath();ctx.ellipse(0,0,r*(.38+.50*travel),r*(.14+.19*travel),0,0,Math.PI*2);ctx.stroke()}
     const chips=reduceMotion?1:3;ctx.fillStyle=alpha(fx.secondary,power*.30);for(let i=0;i<chips;i++){const side=i-(chips-1)/2;ctx.save();ctx.translate(-r*(.18+.22*travel+i*.07),side*r*(.08+.08*travel));ctx.rotate((fx.spinSign||1)*(side*.22+progress*.28));ctx.fillRect(-r*.045,-r*.018,r*.09,r*.036);ctx.restore()}
     burstMotif(fx,r,power,progress);

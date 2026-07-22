@@ -5,7 +5,7 @@
     label:'[RELAY EXCLUSIVE] 鎮界巨神｜Worldpress Colossus',
     name:'鎮界巨神',englishName:'Worldpress Colossus',
     combo:'2-Slot 0-90 Dominion Disk',
-    rank:'雙棒占用・巨軀鎮壓・無後援',
+    rank:'雙棒占用・重心鎮場・天墜三震',
     tier:'SPECIAL',type:'defense',
     a:88,d:96,s:82,w:100,b:98,spin:'R',shape:'worldpressColossus',
     relayOnly:true,relayDoubleSlot:true,juggernautEngine:true,
@@ -36,7 +36,7 @@
     const combo=host.querySelector('.combo-box');
     const ability=document.createElement('div');
     ability.className='combo-box colossus-ability';
-    ability.innerHTML='<strong>雙棒限定・鎮界重軀</strong>只可在雙打車輪戰作為先鋒選擇，單顆直接占用第 1 棒與第 2 棒。超大直徑與高慣量形成近身壓迫場，碰撞時以重量壓制、推退並破壞穩定；代價是沒有後援、沒有傳承，且機動與自然續航較低。<div class="combo-tags"><span>占用兩棒</span><span>超大體型</span><span>重壓場</span><span>無後援</span></div>';
+    ability.innerHTML='<strong>雙棒限定・鎮界重軀</strong>超大直徑與高慣量讓巨神更容易守住競技盤中央。它會原地躍起，以落點為中心依序釋放三道震波；也可能張開逆時針氣旋，依對手轉速與技能姿態改變牽引力。<div class="combo-tags"><span>重心回中</span><span>原地躍震</span><span>三連波前</span><span>逆潮氣旋</span></div>';
     if(combo)combo.insertAdjacentElement('afterend',ability);else host.appendChild(ability);
   };
 
@@ -65,33 +65,26 @@
       this.colossusImpactLock=Math.max(0,(this.colossusImpactLock||0)-dt);
       if(!this.c?.juggernautEngine||!active(this))return;
 
-      this.vx*=Math.exp(-.055*dt);
-      this.vy*=Math.exp(-.055*dt);
+      const heavy=clamp(((this.mass||1.45)-1.45)/1.55,0,1);
+      this.vx*=Math.exp(-(.12+.10*heavy)*dt);
+      this.vy*=Math.exp(-(.12+.10*heavy)*dt);
       this.energy=Math.max(0,(this.energy||0)-dt*.20);
       this.tiltVel*=Math.exp(-.28*dt);
 
       const cx=W/2,cy=H/2,cdx=cx-this.x,cdy=cy-this.y,centerD=mag(cdx,cdy)||1;
-      if(centerD>innerR*.48){
-        this.vx+=cdx/centerD*13*dt;
-        this.vy+=cdy/centerD*13*dt;
+      const dead=this.r*.65;
+      if(centerD>dead){
+        const inwardX=cdx/centerD,inwardY=cdy/centerD,q=clamp((centerD-dead)/Math.max(1,innerR-dead),0,1);
+        const accel=(6+34*q*q)*(.78+.22*heavy)*(this.colossusVortexActive?1.16:1);
+        const outwardSpeed=Math.max(0,-(this.vx*inwardX+this.vy*inwardY));
+        const reject=outwardSpeed*(1-Math.exp(-(.38+.28*heavy)*dt));
+        this.vx+=inwardX*(accel*dt+reject);
+        this.vy+=inwardY*(accel*dt+reject);
       }
-
-      const range=this.r*6.2;
-      if(Array.isArray(tops))tops.forEach(enemy=>{
-        if(enemy===this||teamOf(enemy)===teamOf(this)||!active(enemy)||enemy.phaseInvisible||enemy.skyJumpGhost)return;
-        const dx=enemy.x-this.x,dy=enemy.y-this.y,d=mag(dx,dy)||1;
-        if(d>=range)return;
-        const pressure=Math.pow(1-d/range,1.35);
-        const damping=Math.exp(-.34*pressure*dt);
-        enemy.vx*=damping;enemy.vy*=damping;
-        enemy.tiltVel+=(Math.sign(enemy.omega)||1)*.065*pressure*dt/Math.max(.72,enemy.tip?.stability||1);
-        enemy.energy=Math.max(0,(enemy.energy||0)-.16*pressure*dt);
-        this.colossusPressurePulse=Math.max(this.colossusPressurePulse,pressure*.7);
-      });
     }
     draw(){
-      if(this.c?.juggernautEngine&&!this.out&&!this.burst){
-        const pulse=.5+.5*Math.sin(time*3.8),p=Math.max(.18,this.colossusPressurePulse||0);
+      if(this.c?.juggernautEngine&&!this.out&&!this.burst&&(this.colossusSkillState||'idle')==='idle'){
+        const p=Math.max(.18,this.colossusPressurePulse||0);
         ctx.save();
         ctx.translate(this.x,this.y);
         ctx.globalCompositeOperation='screen';
@@ -101,27 +94,17 @@
         aura.addColorStop(1,'rgba(0,0,0,0)');
         ctx.fillStyle=aura;
         ctx.beginPath();ctx.arc(0,0,this.r*(3.1+p*.8),0,Math.PI*2);ctx.fill();
-        ctx.strokeStyle=alpha(this.c.accent,.20+pulse*.12+p*.18);
-        ctx.lineWidth=1.5+p*2;
-        ctx.shadowBlur=18;ctx.shadowColor=this.c.primary;
-        ctx.beginPath();ctx.arc(0,0,this.r*(1.38+pulse*.045),0,Math.PI*2);ctx.stroke();
         ctx.restore();
       }
       super.draw();
       if(!this.c?.juggernautEngine||this.out||this.burst)return;
+      const jump=clamp(Number(this.colossusJumpHeight)||0,0,.74),lift=jump*this.r,scale=1+jump/.74*.02;
       ctx.save();
-      ctx.translate(this.x,this.y);
-      ctx.rotate(-time*.22);
+      ctx.translate(this.x,this.y-lift);ctx.scale(scale,scale);
+      ctx.rotate((this.angle||0)*-.055);
       ctx.globalCompositeOperation='screen';
-      ctx.strokeStyle=alpha(this.c.accent,.66);
-      ctx.lineWidth=Math.max(1.4,this.r*.065);
-      ctx.setLineDash([this.r*.22,this.r*.11]);
-      ctx.beginPath();ctx.arc(0,0,this.r*.74,0,Math.PI*2);ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.font=`1000 ${Math.max(9,this.r*.34)}px system-ui`;
-      ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillStyle='#fff7dc';ctx.shadowBlur=12;ctx.shadowColor=this.c.accent;
-      ctx.fillText('Ⅱ',0,0);
+      ctx.fillStyle=alpha(this.c.accent,.48);ctx.shadowBlur=8;ctx.shadowColor=this.c.accent;
+      for(let i=0;i<4;i++){ctx.save();ctx.rotate(i*Math.PI/2);ctx.translate(this.r*.67,0);ctx.fillRect(-this.r*.13,-this.r*.045,this.r*.26,this.r*.09);ctx.restore()}
       ctx.restore();
     }
   };
@@ -140,9 +123,6 @@
     attacker.vx*=.91;attacker.vy*=.91;
     attacker.colossusImpactLock=.18;
     attacker.colossusPressurePulse=1;
-    const x=(attacker.x+victim.x)/2,y=(attacker.y+victim.y)/2;
-    emit(x,y,attacker.c.accent,34,1.0,'streak');
-    wave(x,y,attacker.c.primary,78);
     shake=Math.max(shake,9.5);flash=Math.max(flash,.26);
   }
 
@@ -168,5 +148,5 @@
     option[value="${KEY}"]{font-weight:900}
   `;
   document.head.appendChild(style);
-  document.documentElement.dataset.worldpressColossus='v1';
+  document.documentElement.dataset.worldpressColossus='v2';
 })();
