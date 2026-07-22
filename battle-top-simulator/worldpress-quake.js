@@ -15,7 +15,7 @@
     const host=document.querySelector('#'+id),c=cfg[id];
     if(!host||!c?.juggernautEngine)return;
     const ability=host.querySelector('.colossus-ability');
-    if(ability)ability.innerHTML='<strong>雙棒限定・鎮界重軀</strong>巨神會壓低重心蓄積地脈，場地先逐步顫動、暗化並浮現收縮刻印；隨後發動「鎮界震撼」，以四重震波、地表崩裂與兩段餘震震起地面敵人。傷害維持克制，但動畫與場面壓迫大幅提升。<div class="combo-tags"><span>重壓蓄能</span><span>地表崩裂</span><span>四重震波</span><span>彈起餘震</span></div>';
+    if(ability)ability.innerHTML='<strong>雙棒限定・鎮界重軀</strong>巨神會放下四座鎮界錨，將八角地殼板逐層壓向核心；落震時地殼板分段外翻、菱形岩塊向外推移並留下十道主裂隙，最後由四段弧形餘震收束。動畫更有重量感，也更容易辨認蓄力與衝擊時機。<div class="combo-tags"><span>四座鎮界錨</span><span>八角地殼板</span><span>分段外翻</span><span>弧形餘震</span></div>';
   };
 
   const PreviousTop=Top;
