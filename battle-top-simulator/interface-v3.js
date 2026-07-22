@@ -28,7 +28,7 @@
 
   q('h1').textContent='旋刃競技場';
   q('.sub').textContent='配置你的戰鬥陀螺，在高擬真重力碗面中觀察發射路線、旋轉姿態、碰撞火花與極限出界。';
-  q('.meta-badge').textContent='120 HZ · TWIN × RAGE V5';
+  q('.meta-badge').textContent='120 HZ · EFFECTS V6';
   q('.legend').innerHTML='<span class="chip gravity">重力核心</span><span class="chip inner">主戰碗面</span><span class="chip outer">Xtreme Line</span>速度、傾角與刃片接觸會共同改變碰撞結果。';
   q('.note').textContent='陀螺、競技盤、光影與粒子皆由 Canvas 即時繪製。';
   q('#log').textContent='競技場已就緒。選擇雙方陀螺與發射位置，然後開始戰鬥。';

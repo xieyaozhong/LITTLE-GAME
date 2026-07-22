@@ -350,20 +350,20 @@
     const rays=fx.bond?10:7;for(let i=0;i<rays;i++){const a=i*Math.PI*2/rays;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.28,Math.sin(a)*r*.28);ctx.lineTo(Math.cos(a)*r*(.62+fx.strength*.12),Math.sin(a)*r*(.62+fx.strength*.12));ctx.stroke()}
     if(fx.bond){ctx.strokeStyle=alpha('#ffffff',alphaPower*.34);ctx.rotate(Math.PI/4);polygon(4,r*.46);ctx.stroke();ctx.rotate(Math.PI/4);polygon(4,r*.46);ctx.stroke()}
     ctx.restore();
-    ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.globalAlpha=alphaPower;ctx.font=`900 ${Math.max(9,11+fx.strength*2)}px system-ui`;ctx.fillStyle='#ffffff';ctx.shadowBlur=9;ctx.shadowColor=fx.color;ctx.fillText(fx.label,fx.x,fx.y-r*.64-progress*12);ctx.restore();
+    ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.globalAlpha=alphaPower*.86;ctx.font=`900 ${Math.max(8,9+fx.strength)}px system-ui`;ctx.fillStyle='#ffffff';ctx.shadowBlur=8;ctx.shadowColor=fx.color;ctx.fillText(fx.mark||'技',fx.x,fx.y-r*.62-progress*8);ctx.restore();
   }
   const previousDrawScene=drawScene;
   drawScene=function(){previousDrawScene();if(skillBursts.length){ctx.save();skillBursts.forEach(drawBurst);ctx.restore()}};
 
   if(arena){
-    const cinematic=document.createElement('div');cinematic.className='skill-cinematic';cinematic.setAttribute('aria-hidden','true');cinematic.innerHTML='<span class="skill-cinematic-mark">技</span><span class="skill-cinematic-copy"><span class="skill-cinematic-kicker">SKILL ACTIVATION</span><strong class="skill-cinematic-title">技能啟動</strong><span class="skill-cinematic-owner"></span></span>';arena.appendChild(cinematic);
+    const cinematic=document.createElement('div');cinematic.className='skill-cinematic';cinematic.setAttribute('aria-hidden','true');cinematic.innerHTML='<span class="skill-cinematic-mark">技</span><strong class="skill-cinematic-title"></strong>';arena.appendChild(cinematic);
     let hideTimer=0,flashTimer=0;
     window.addEventListener('arena-skill-activation',event=>{
-      const d=event.detail||{};cinematic.style.setProperty('--skill-color',d.color||'#7fe7ff');cinematic.classList.toggle('bond',!!d.bond);cinematic.querySelector('.skill-cinematic-mark').textContent=d.mark||'技';cinematic.querySelector('.skill-cinematic-kicker').textContent=d.bond?'RELAY BOND RESONANCE':'SKILL ACTIVATION';cinematic.querySelector('.skill-cinematic-title').textContent=d.label||'技能啟動';cinematic.querySelector('.skill-cinematic-owner').textContent=d.owner||'';
-      cinematic.classList.remove('show');requestAnimationFrame(()=>cinematic.classList.add('show'));clearTimeout(hideTimer);hideTimer=setTimeout(()=>cinematic.classList.remove('show'),d.bond?900:650);
+      const d=event.detail||{};cinematic.style.setProperty('--skill-color',d.color||'#7fe7ff');cinematic.classList.toggle('bond',!!d.bond);cinematic.classList.toggle('labeled',!!d.bond);cinematic.querySelector('.skill-cinematic-mark').textContent=d.mark||'技';cinematic.querySelector('.skill-cinematic-title').textContent=d.bond?'羈絆':'';
+      cinematic.classList.remove('show');requestAnimationFrame(()=>cinematic.classList.add('show'));clearTimeout(hideTimer);hideTimer=setTimeout(()=>cinematic.classList.remove('show'),d.bond?620:420);
       arena.dataset.skillFlash='1';arena.style.setProperty('--skill-flash-color',d.color||'#7fe7ff');clearTimeout(flashTimer);flashTimer=setTimeout(()=>{arena.dataset.skillFlash='0'},180);
     });
   }
 
-  document.documentElement.dataset.skillFx='v4';
+  document.documentElement.dataset.skillFx='minimal-v6';
 })();
