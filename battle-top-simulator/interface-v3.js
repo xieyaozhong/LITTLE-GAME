@@ -28,7 +28,7 @@
 
   q('h1').textContent='旋刃競技場';
   q('.sub').textContent='配置你的戰鬥陀螺，在高擬真重力碗面中觀察發射路線、旋轉姿態、碰撞火花與極限出界。';
-  q('.meta-badge').textContent='120 HZ · EFFECTS V6';
+  q('.meta-badge').textContent='120 HZ · EFFECTS V7';
   q('.legend').innerHTML='<span class="chip gravity">重力核心</span><span class="chip inner">主戰碗面</span><span class="chip outer">Xtreme Line</span>速度、傾角與刃片接觸會共同改變碰撞結果。';
   q('.note').textContent='陀螺、競技盤、光影與粒子皆由 Canvas 即時繪製。';
   q('#log').textContent='競技場已就緒。選擇雙方陀螺與發射位置，然後開始戰鬥。';
@@ -44,7 +44,7 @@
       <div class="telemetry-center"><div id="telemetryClock" class="telemetry-clock">0.0 S</div><div id="telemetryState" class="telemetry-state">STANDBY</div></div>
       <div class="telemetry-side red"><span class="telemetry-label">RED · SPIN</span><strong id="telemetryRed" class="telemetry-value">— RPM</strong></div>
     </div>
-    <div id="impactCallout" class="impact-callout" aria-hidden="true">IMPACT</div>
+    <div id="impactCallout" class="impact-callout" aria-hidden="true"></div>
   `);
 
   const btns=q('.btns');
@@ -107,7 +107,7 @@
   window.addEventListener('arenaimpact',event=>{
     const power=event.detail?.power||0,el=q('#impactCallout');
     if(power<36||!el)return;
-    el.textContent=power>185?'CRITICAL':power>105?'HEAVY HIT':'IMPACT';
+    el.dataset.power=power>185?'critical':power>105?'heavy':'impact';
     el.classList.remove('show');
     requestAnimationFrame(()=>el.classList.add('show'));
     clearTimeout(calloutTimer);calloutTimer=setTimeout(()=>el.classList.remove('show'),power>150?420:280);

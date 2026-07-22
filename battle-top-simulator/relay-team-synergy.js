@@ -380,7 +380,7 @@
         const pulse=.5+.5*Math.sin(time*4.8);
         ctx.strokeStyle=alpha(color,.13+pulse*.08+skill*.34);ctx.lineWidth=1.2+skill*2.4;ctx.shadowBlur=10+skill*18;ctx.shadowColor=color;
         ctx.setLineDash([5,7]);ctx.beginPath();ctx.arc(0,0,this.r*(1.38+pulse*.04+skill*.18),0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
-        if(skill>0){ctx.font=`1000 ${Math.max(9,this.r*.30)}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=alpha('#fff',.38+skill*.54);ctx.fillText(this.relayBondGlyph||'技',0,-this.r*1.62)}
+        if(skill>0){ctx.fillStyle=alpha('#fff',.18+skill*.38);for(const side of [-1,1]){ctx.beginPath();ctx.arc(side*this.r*.19,-this.r*1.62,this.r*(.035+skill*.025),0,Math.PI*2);ctx.fill()}}
       }
       if(hit>0){
         ctx.strokeStyle=alpha(this.relayBondHitColor||color,hit*.52);ctx.lineWidth=1+hit*2.8;

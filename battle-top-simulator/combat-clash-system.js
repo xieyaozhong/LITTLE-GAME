@@ -286,9 +286,6 @@
    ctx.save();ctx.translate(this.x,this.y);ctx.globalCompositeOperation='screen';
    ctx.strokeStyle=alpha(this.skillClashColor||'#fff3b8',.25+.40*p);ctx.lineWidth=1.5+1.4*p;ctx.shadowBlur=14;ctx.shadowColor=this.skillClashColor||'#fff3b8';
    ctx.setLineDash([4,6]);ctx.beginPath();ctx.arc(0,0,this.r*(1.28+(1-p)*.42+pulse*.04),0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();
-   if(this.skillClashText){
-    ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`900 ${Math.max(8,this.r*.27)}px system-ui`;ctx.shadowBlur=9;ctx.shadowColor=this.skillClashColor||'#fff3b8';ctx.fillStyle=alpha(this.skillClashColor||'#fff3b8',.82*p);ctx.fillText(this.skillClashText,this.x,this.y-this.r*1.98);ctx.restore();
-   }
   }
  };
 

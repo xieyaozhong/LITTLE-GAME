@@ -288,11 +288,6 @@
     ctx.save();ctx.globalCompositeOperation='screen';ctx.strokeStyle=alpha(accent,.48*power);ctx.lineWidth=2.2;
     ctx.beginPath();ctx.arc(this.x,this.y,this.r*(1.18+(1-power)*.82),0,Math.PI*2);ctx.stroke();ctx.restore();
    }
-   if(form){
-    ctx.save();ctx.globalCompositeOperation='screen';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.font=`800 ${Math.max(8,this.r*.27)}px system-ui`;ctx.shadowBlur=8;ctx.shadowColor=primary;ctx.fillStyle=alpha(accent,.72+.18*pulse);
-    ctx.fillText(`${form.short}・${form.rhythm}`,this.x,this.y-this.r*1.72);ctx.restore();
-   }
   }
  };
 

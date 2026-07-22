@@ -184,10 +184,6 @@
    }
    ctx.restore();
 
-   ctx.save();ctx.globalCompositeOperation='screen';ctx.textAlign='center';ctx.textBaseline='middle';
-   ctx.font=`800 ${Math.max(8,this.r*.28)}px system-ui`;
-   ctx.shadowBlur=8;ctx.shadowColor=yang?'#ffd978':'#68e4c1';ctx.fillStyle=alpha('#ffffff',.74+.18*pulse);
-   ctx.fillText(`${yang?'陽・發勁':'陰・化勁'} ${Math.round(this.taijiChi)}`,this.x,this.y-this.r*1.68);ctx.restore();
   }
  };
 
