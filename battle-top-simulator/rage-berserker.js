@@ -4,11 +4,11 @@
  const BLOODRAGE_BERSERKER={
   label:'[SPECIAL] 血怒狂戰士｜Bloodrage Berserker',
   name:'血怒狂戰士',englishName:'Bloodrage Berserker',
-  combo:'3-60 Rage Rush',
-  rank:'低能量狂化・實戰攻擊可突破 100',tier:'SPECIAL',type:'attack',
+  combo:'4-Axe 3-60 Rage Rush',
+  rank:'暗鋼戰斧・三段血怒',tier:'SPECIAL',type:'attack',
   a:84,d:66,s:74,w:86,b:84,spin:'R',shape:'bloodrageBerserker',
   rageEngine:true,
-  primary:'#e93636',secondary:'#ff8a24',accent:'#fff0cf',metal:'#cfd5dc'
+  primary:'#ff304c',secondary:'#ff8a28',accent:'#fff1be',metal:'#343946'
  };
  metaPresets[RAGE_KEY]=BLOODRAGE_BERSERKER;
 
@@ -154,7 +154,7 @@
   bladeCount(){return this.c.shape==='bloodrageBerserker'?4:super.bladeCount()}
   bladeRadius(i){
    if(this.c.shape==='bloodrageBerserker'){
-    const profile=[1.20,.72,1.04,.76];
+    const profile=[1.24,.69,1.08,.73];
     return this.r*profile[i%profile.length];
    }
    return super.bladeRadius(i);

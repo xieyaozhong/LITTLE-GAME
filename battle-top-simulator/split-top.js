@@ -5,10 +5,10 @@
   label:'[SPECIAL] 雙生星核｜Twin Nova',
   name:'雙生星核',englishName:'Twin Nova',
   combo:'2-Core 5-70 Split Point',
-  rank:'碰撞分裂・一體雙生',tier:'SPECIAL',type:'balance',
+  rank:'雙軌星核・裂變繼承',tier:'SPECIAL',type:'balance',
   a:82,d:83,s:84,w:82,b:94,spin:'R',shape:'twinNova',
   splitTop:true,splitChildName:'星核 β',
-  primary:'#3bd5ff',secondary:'#8d5cff',accent:'#fff0a8',metal:'#e7f5ff'
+  primary:'#35ddff',secondary:'#9b6cff',accent:'#fff3ad',metal:'#dcecff'
  };
  metaPresets[TWIN_KEY]=TWIN_NOVA;
 
@@ -69,7 +69,7 @@
    super.drawModel(speed);
    if(this.c.shape!=='twinNova'&&this.c.shape!=='twinNovaChild')return;
    const combined=this.c.shape==='twinNova'&&!this.splitPart;
-   const mark=combined?'Ⅱ':(this.splitPart||'β');
+   const mark=combined?'∞':(this.splitPart||'β');
    ctx.save();
    ctx.translate(this.x,this.y);
    ctx.rotate(this.angle*.58);
@@ -84,15 +84,13 @@
    ctx.stroke();
    ctx.setLineDash([]);
    if(combined){
-    ctx.strokeStyle=alpha(this.c.secondary,.76);
+    ctx.strokeStyle=alpha(this.c.secondary,.82);
     ctx.lineWidth=Math.max(1,this.r*.055);
     ctx.beginPath();
     ctx.arc(0,0,this.r*.46,0,Math.PI*2);
     ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(-this.r*.62,0);
-    ctx.lineTo(this.r*.62,0);
-    ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-this.r*.62,0);ctx.quadraticCurveTo(0,-this.r*.28,this.r*.62,0);ctx.stroke();
+    ctx.strokeStyle=alpha(this.c.primary,.78);ctx.beginPath();ctx.moveTo(-this.r*.62,0);ctx.quadraticCurveTo(0,this.r*.28,this.r*.62,0);ctx.stroke();
    }
    ctx.globalCompositeOperation='source-over';
    ctx.fillStyle='#fff';
