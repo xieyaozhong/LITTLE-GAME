@@ -44,18 +44,6 @@
     return {dx,dy,d,nx:dx/d,ny:dy/d,angle:Math.atan2(dy,dx)};
   }
 
-  function drawSkillName(top,p,color){
-    if(!top.relayBondLocalName)return;
-    ctx.save();
-    ctx.translate(top.x,top.y-top.r*(1.75+(1-p)*.22));
-    ctx.globalAlpha=clamp(p*1.45,0,1)*.82;
-    ctx.font=`900 ${Math.max(9,top.r*.25)}px system-ui`;
-    ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillStyle='#f8fbff';ctx.shadowBlur=8;ctx.shadowColor=color;
-    ctx.fillText(top.relayBondLocalName,0,0);
-    ctx.restore();
-  }
-
   function drawSourceEffect(top){
     const p=clamp(top.relayBondLocalFx||0,0,1);
     if(p<=0)return;
@@ -139,7 +127,6 @@
     }
 
     ctx.restore();
-    drawSkillName(top,p,color);
   }
 
   function drawHitEffect(top){

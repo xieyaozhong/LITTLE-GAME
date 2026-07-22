@@ -178,14 +178,6 @@
         ctx.beginPath(); ctx.arc(0, 0, this.r * (1.22 + (1 - this.taijiFx) * 0.7), 0, Math.PI * 2); ctx.stroke();
       }
       ctx.restore();
-      ctx.save();
-      ctx.globalCompositeOperation = 'screen';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.font = `800 ${Math.max(8, this.r * 0.28)}px system-ui`;
-      ctx.fillStyle = alpha('#ffffff', 0.78 + pulse * 0.16);
-      ctx.shadowBlur = 8; ctx.shadowColor = yang ? '#f5d67b' : '#65e6c2';
-      ctx.fillText(`${yang ? '陽・發勁' : '陰・化勁'} ${Math.round(this.taijiChi)}`, this.x, this.y - this.r * 1.68);
-      ctx.restore();
     }
   };
 

@@ -1,62 +1,36 @@
-.skill-cinematic{
-  --skill-color:#7fe7ff;
-  position:absolute;
-  top:12%;
-  left:50%;
-  z-index:7;
-  display:flex;
-  align-items:center;
-  gap:7px;
-  padding:5px;
-  border:1px solid color-mix(in srgb,var(--skill-color) 52%,transparent);
-  border-radius:12px;
-  background:color-mix(in srgb,var(--skill-color) 12%,rgba(5,8,17,.78));
-  box-shadow:0 8px 22px #0008,inset 0 1px #ffffff18,0 0 18px color-mix(in srgb,var(--skill-color) 20%,transparent);
-  backdrop-filter:blur(9px);
-  pointer-events:none;
-  opacity:0;
-  transform:translate(-50%,6px) scale(.88);
-  transition:opacity .14s ease,transform .14s ease;
-  overflow:hidden;
-}
-.skill-cinematic::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(110deg,transparent 12%,color-mix(in srgb,var(--skill-color) 20%,transparent) 50%,transparent 74%);
-  transform:translateX(-120%);
-}
-.skill-cinematic.show{opacity:.94;transform:translate(-50%,0) scale(1)}
-.skill-cinematic.show::after{animation:skillSweep .42s ease-out}
-.skill-cinematic.bond{padding-right:10px;border-color:color-mix(in srgb,var(--skill-color) 72%,#fff 18%)}
-.skill-cinematic-mark{
-  position:relative;
-  z-index:1;
-  display:grid;
-  place-items:center;
-  width:30px;
-  height:30px;
-  border:1px solid color-mix(in srgb,var(--skill-color) 62%,#fff 18%);
-  border-radius:9px;
-  background:color-mix(in srgb,var(--skill-color) 18%,#0b1120);
-  color:#fff;
-  font:900 11px/1 "Noto Sans TC",sans-serif;
-  box-shadow:inset 0 0 11px color-mix(in srgb,var(--skill-color) 24%,transparent),0 0 11px color-mix(in srgb,var(--skill-color) 22%,transparent);
-}
-.skill-cinematic-title{
-  position:relative;
-  z-index:1;
-  display:none;
-  color:#fff;
-  font:900 10px/1 "Noto Sans TC",sans-serif;
-  letter-spacing:.10em;
-  text-shadow:0 0 10px color-mix(in srgb,var(--skill-color) 46%,transparent);
-}
-.skill-cinematic.labeled .skill-cinematic-title{display:block}
 .arena[data-skill-flash="1"]::before{
-  opacity:.64;
-  background:radial-gradient(circle at 50% 45%,color-mix(in srgb,var(--skill-flash-color,#7fe7ff) 11%,transparent),transparent 46%);
+  opacity:.58;
+  background:
+    radial-gradient(circle at 50% 46%,color-mix(in srgb,var(--skill-flash-color,#7fe7ff) 16%,transparent) 0,transparent 38%),
+    conic-gradient(from 42deg at 50% 48%,transparent 0 12%,color-mix(in srgb,var(--skill-flash-color,#7fe7ff) 8%,transparent) 16%,transparent 22% 54%,color-mix(in srgb,var(--skill-flash-color,#7fe7ff) 7%,transparent) 58%,transparent 64%);
+  mix-blend-mode:screen;
+  animation:skillFlashV7 .26s cubic-bezier(.16,.76,.22,1) both;
 }
-@keyframes skillSweep{to{transform:translateX(120%)}}
-@media(max-width:600px){.skill-cinematic{top:9%}.skill-cinematic-mark{width:27px;height:27px;font-size:10px}}
-@media(prefers-reduced-motion:reduce){.skill-cinematic{transition:none}.skill-cinematic.show::after{animation:none}}
+.arena[data-skill-flash="1"]::after{
+  box-shadow:
+    inset 0 0 70px #000c,
+    inset 0 0 0 1px color-mix(in srgb,var(--skill-flash-color,#7fe7ff) 46%,transparent),
+    inset 0 0 34px color-mix(in srgb,var(--skill-flash-color,#7fe7ff) 14%,transparent);
+  animation:skillEdgeV7 .26s ease-out both;
+}
+.arena[data-skill-bond="1"]::before{
+  background:
+    radial-gradient(ellipse at 42% 48%,color-mix(in srgb,var(--skill-flash-color,#7fe7ff) 14%,transparent),transparent 31%),
+    radial-gradient(ellipse at 58% 48%,color-mix(in srgb,#ffffff 9%,transparent),transparent 31%),
+    conic-gradient(from 45deg at 50% 48%,transparent 0 20%,color-mix(in srgb,var(--skill-flash-color,#7fe7ff) 10%,transparent) 25%,transparent 30% 70%,color-mix(in srgb,#ffffff 7%,transparent) 75%,transparent 80%);
+}
+@keyframes skillFlashV7{
+  0%{opacity:0;filter:saturate(1)}
+  24%{opacity:.58;filter:saturate(1.18)}
+  100%{opacity:0;filter:saturate(1)}
+}
+@keyframes skillEdgeV7{
+  0%{opacity:.35}
+  30%{opacity:1}
+  100%{opacity:1}
+}
+@media(prefers-reduced-motion:reduce){
+  .arena[data-skill-flash="1"]::before{opacity:.24;animation:none;background:radial-gradient(circle at 50% 46%,color-mix(in srgb,var(--skill-flash-color,#7fe7ff) 10%,transparent),transparent 40%)}
+  .arena[data-skill-flash="1"]::after{animation:none}
+}
+.log{display:none!important}

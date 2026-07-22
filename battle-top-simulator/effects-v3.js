@@ -3,17 +3,29 @@
   const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fxBursts=[];
   let ambientSeed=0;
+  const particleBudget=reduceMotion?120:((typeof innerWidth==='number'&&innerWidth<700)?220:360);
+  const baseEmit=emit,baseWave=wave;
+  emit=function(px,py,color,count=18,power=1,kind='spark'){
+    baseEmit(px,py,color,Math.min(count,reduceMotion?18:40),power,kind);
+    if(particles.length>particleBudget)particles.splice(0,particles.length-particleBudget);
+  };
+  wave=function(px,py,color,max=42){
+    baseWave(px,py,color,max);
+    if(waves.length>12)waves.splice(0,waves.length-12);
+  };
 
   function safeColor(top,fallback='#7fe9ff'){
     return top?.c?.primary||fallback;
+  }
+  function hasSignatureFx(top){
+    const c=top?.c||{};
+    return !!(c.splitTop||top?.splitPart||c.skyPouncer||c.phaseCloak||c.charmAura||c.charmEngine||c.rageEngine||c.adaptiveMorph||c.taijiV2||c.taijiWheel||c.taijiMystic||c.sevenSword||c.timeStopEngine||c.juggernautEngine||c.relayDoubleSlot||c.counterTarget==='wizardRod'||c.counterTarget==='customTop'||c.shape==='wooden');
   }
 
   function pushImpact(x,y,power,colorA,colorB){
     const strength=clamp(power/170,.25,1.35);
     fxBursts.push({x,y,life:1,power:strength,colorA,colorB,rotation:rnd(0,Math.PI*2)});
-    wave(x,y,'#ffffff',clamp(30+power*.20,34,88));
-    emit(x,y,'#ffffff',Math.round(clamp(power/5,12,42)),clamp(.55+power/260,.58,1.25),'streak');
-    emit(x,y,colorA,Math.round(clamp(power/8,7,24)),clamp(.45+power/340,.48,.95));
+    if(fxBursts.length>10)fxBursts.shift();
     window.dispatchEvent(new CustomEvent('arenaimpact',{detail:{power,x,y}}));
   }
 
@@ -89,7 +101,7 @@
       this.fxImpactCooldown=Math.max(0,(this.fxImpactCooldown||0)-dt);
     }
     drawAura(speed){
-      if(this.out||this.burst)return;
+      if(this.out||this.burst||hasSignatureFx(this))return;
       const spin=Math.abs(this.omega??this.spin??0);
       const intensity=clamp(spin/55,.18,1);
       const lift=clamp(this.lift||0,0,1);
@@ -116,7 +128,7 @@
       ctx.restore();
     }
     drawSpeedCrown(speed){
-      if(this.out||this.burst)return;
+      if(this.out||this.burst||hasSignatureFx(this))return;
       const spin=Math.abs(this.omega??this.spin??0);
       const intensity=clamp((spin-8)/46,0,1);
       if(intensity<=.04)return;

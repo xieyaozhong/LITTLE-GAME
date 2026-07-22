@@ -184,7 +184,7 @@
     const a=i*Math.PI*2/7,inner=this.r*(1.02+.12*p),outer=this.r*(1.42+.38*p+pulse*.04);
     ctx.beginPath();ctx.moveTo(Math.cos(a)*inner,Math.sin(a)*inner);ctx.lineTo(Math.cos(a+.09)*outer,Math.sin(a+.09)*outer);ctx.stroke();
    }
-   ctx.rotate(-time*(.32+p*.48));ctx.fillStyle=alpha(meta.color,.78);ctx.font=`900 ${Math.max(9,this.r*.34)}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(meta.glyph,0,0);ctx.restore();
+   ctx.rotate(-time*(.32+p*.48));ctx.fillStyle=alpha(meta.color,.48+p*.24);ctx.beginPath();ctx.arc(0,0,this.r*(.075+p*.025),0,Math.PI*2);ctx.fill();ctx.restore();
    if(this.swordLeadPoint){
     ctx.save();ctx.globalCompositeOperation='screen';ctx.strokeStyle=alpha(meta.color,.16+.36*p);ctx.lineWidth=1.2+1.2*p;ctx.setLineDash([6,8]);ctx.beginPath();ctx.moveTo(this.x,this.y);ctx.lineTo(this.swordLeadPoint.x,this.swordLeadPoint.y);ctx.stroke();ctx.setLineDash([]);
     ctx.beginPath();ctx.arc(this.swordLeadPoint.x,this.swordLeadPoint.y,8+12*p,0,Math.PI*2);ctx.stroke();ctx.restore();

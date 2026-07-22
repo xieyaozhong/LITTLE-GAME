@@ -271,7 +271,7 @@
       ctx.fillStyle=core;ctx.beginPath();ctx.arc(0,0,this.r*2.1,0,Math.PI*2);ctx.fill();
       ctx.strokeStyle=alpha('#fff1b0',.34+q*.52);ctx.lineWidth=2+q*3.6;ctx.shadowBlur=20+q*18;ctx.shadowColor=this.c.primary;
       for(let i=0;i<4;i++){ctx.beginPath();ctx.arc(0,0,this.r*(1.35+i*.25-q*.22),0,Math.PI*2);ctx.stroke()}
-      ctx.font=`1000 ${Math.max(12,this.r*(.38+q*.06))}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff9df';ctx.shadowBlur=18;ctx.fillText(q>.72?'震':'鎮',0,0);
+      ctx.fillStyle=alpha('#fff9df',.18+q*.34);for(let i=0;i<4;i++){const a=i*Math.PI/2+Math.PI/4;ctx.save();ctx.rotate(a);ctx.beginPath();ctx.moveTo(this.r*.18,-this.r*.08);ctx.lineTo(this.r*(.58+q*.12),0);ctx.lineTo(this.r*.18,this.r*.08);ctx.closePath();ctx.fill();ctx.restore()}
       ctx.restore();
     }
   };

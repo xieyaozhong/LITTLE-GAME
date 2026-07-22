@@ -269,9 +269,6 @@
     ctx.strokeStyle=alpha(this.c.accent,.40+pulse*.30);ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,this.r*(1.25+pulse*.04),0,Math.PI*2);ctx.stroke();
    }
    ctx.restore();
-   if(active){
-    ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`900 ${Math.max(8,this.r*.28)}px system-ui`;ctx.shadowBlur=9;ctx.shadowColor=this.c.primary;ctx.fillStyle=alpha(this.c.accent,.82);ctx.fillText(this.swordArtName,this.x,this.y-this.r*1.72);ctx.restore();
-   }
   }
  };
 

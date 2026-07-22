@@ -309,7 +309,6 @@
     for(let i=0;i<12;i++){const a=i*Math.PI/6,ri=r*.82,ro=r*1.12;ctx.beginPath();ctx.moveTo(Math.cos(a)*ri,Math.sin(a)*ri);ctx.lineTo(Math.cos(a)*ro,Math.sin(a)*ro);ctx.stroke()}
     ctx.rotate(time*.22);ctx.strokeStyle=alpha(source?.c?.accent||'#fff3b8',.72);ctx.lineWidth=2.2;
     ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-r*.62);ctx.moveTo(0,0);ctx.lineTo(r*.48,0);ctx.stroke();ctx.restore();
-    ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`900 ${Math.max(9,this.r*.31)}px system-ui`;ctx.shadowBlur=10;ctx.shadowColor=source?.c?.primary||'#72e7ff';ctx.fillStyle=alpha(source?.c?.accent||'#fff3b8',.88);ctx.fillText('時停',this.x,this.y-this.r*1.72);ctx.restore();
    }
    if(!this.isChronoCaster()||this.chronoState==='idle')return;
    const pulse=.5+.5*Math.sin(time*(this.chronoState==='stop'?4.2:8.2));
@@ -319,7 +318,6 @@
    ctx.beginPath();ctx.arc(0,0,radius,0,Math.PI*2);ctx.stroke();
    for(let i=0;i<12;i++){const a=i*Math.PI/6,ri=radius*.78,ro=radius*(i%3===0?1.18:1.08);ctx.beginPath();ctx.moveTo(Math.cos(a)*ri,Math.sin(a)*ri);ctx.lineTo(Math.cos(a)*ro,Math.sin(a)*ro);ctx.stroke()}
    ctx.strokeStyle=alpha(this.c.accent,.62);ctx.lineWidth=2.1;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(-time*1.8)*radius*.65,Math.sin(-time*1.8)*radius*.65);ctx.moveTo(0,0);ctx.lineTo(Math.cos(time*.62)*radius*.47,Math.sin(time*.62)*radius*.47);ctx.stroke();ctx.restore();
-   ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`900 ${Math.max(8,this.r*.28)}px system-ui`;ctx.shadowBlur=9;ctx.shadowColor=this.c.primary;ctx.fillStyle=alpha(this.c.accent,.84);ctx.fillText(this.chronoState==='stop'?'零時領域':this.chronoState==='releaseRush'?'秒針破界':'時刻蓄積',this.x,this.y-this.r*1.72);ctx.restore();
   }
  };
 

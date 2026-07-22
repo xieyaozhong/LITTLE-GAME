@@ -222,13 +222,6 @@
 
    drawRageLightning(this,rage,stage);
 
-   // Show the real uncapped combat attack above the top.
-   if(attack>100){
-    ctx.save();ctx.globalCompositeOperation='screen';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.font=`900 ${Math.max(9,this.r*.34)}px system-ui`;
-    ctx.shadowBlur=10;ctx.shadowColor=this.c.primary;ctx.fillStyle=alpha(this.c.accent,.72+.20*pulse);
-    ctx.fillText(`ATK ${Math.round(attack)}`,this.x,this.y-this.r*(1.72+stage*.05));ctx.restore();
-   }
   }
  };
 

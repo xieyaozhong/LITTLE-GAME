@@ -161,9 +161,6 @@
    ctx.strokeStyle=alpha(this.c.primary||'#3bd5ff',.30+pulse*.18);ctx.lineWidth=1.2;
    ctx.beginPath();ctx.moveTo(-r*.52,-r*.52);ctx.lineTo(r*.52,r*.52);ctx.moveTo(r*.52,-r*.52);ctx.lineTo(-r*.52,r*.52);ctx.stroke();
    ctx.restore();
-   ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`900 ${Math.max(9,this.r*.31)}px system-ui`;
-   ctx.shadowBlur=10;ctx.shadowColor=source?.c?.primary||'#ff68c8';ctx.fillStyle=alpha(source?.c?.accent||'#fff0fb',.86);
-   ctx.fillText('月蝕叛核',this.x,this.y-this.r*1.72);ctx.restore();
   }
  };
 
