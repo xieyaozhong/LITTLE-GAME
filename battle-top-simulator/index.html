@@ -3,25 +3,33 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>旋刃競技場｜載入物理引擎</title>
+<meta name="theme-color" content="#050711">
+<meta name="description" content="選擇陀螺、調整發射策略，在高擬真的重力碗面中展開即時旋刃對決。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="旋刃競技場｜Beyblade X 對戰模擬器">
+<meta property="og:description" content="多層陀螺模型、即時碰撞與華麗旋轉特效，一鍵發射你的戰鬥陀螺。">
+<meta property="og:image" content="https://xieyaozhong.github.io/little-game/battle-top-simulator/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://xieyaozhong.github.io/little-game/battle-top-simulator/og.png">
+<title>旋刃競技場｜Beyblade X 對戰模擬器</title>
 <style>
-html,body{margin:0;min-height:100%;background:#040711;color:#eef5ff;font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif}body{display:grid;place-items:center}.loading{text-align:center;padding:28px}.spinner{width:44px;height:44px;margin:0 auto 16px;border:4px solid #ffffff18;border-top-color:#50d8ff;border-radius:50%;animation:spin .8s linear infinite}.msg{color:#9fb0cf;font-size:14px}@keyframes spin{to{transform:rotate(360deg)}}
+:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#050711;color:#f5f7ff;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Noto Sans TC",sans-serif}body{display:grid;place-items:center;overflow:hidden}.loading{width:min(420px,calc(100vw - 40px));padding:32px;text-align:center;border:1px solid #ffffff17;border-radius:28px;background:linear-gradient(145deg,#121a2bcc,#080c17e8);box-shadow:0 28px 90px #000b,inset 0 1px #ffffff12}.mark{width:72px;height:72px;margin:0 auto 18px;border-radius:50%;background:conic-gradient(from 15deg,#52ddff,#fff 8%,#7c5cff 18%,#111a2a 27%,#ff4f83 42%,#fff 52%,#52ddff 68%,#0c1220 80%,#ffcf70);box-shadow:0 0 34px #4bdfff55,inset 0 0 0 12px #090f1ddd;animation:spin .9s linear infinite}.eyebrow{color:#7fe6ff;font-size:11px;font-weight:900;letter-spacing:.22em}.loading strong{display:block;margin-top:8px;font-size:24px;letter-spacing:.08em}.msg{margin-top:8px;color:#99a9c5;font-size:13px;line-height:1.6}.track{height:3px;margin-top:22px;border-radius:99px;background:#ffffff0e;overflow:hidden}.track:after{content:"";display:block;width:42%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#45d9ff,#9c78ff,#ff5a8b);box-shadow:0 0 14px #62dcff;animation:load 1.2s ease-in-out infinite alternate}@keyframes spin{to{transform:rotate(360deg)}}@keyframes load{from{transform:translateX(-80%)}to{transform:translateX(240%)}}@media(prefers-reduced-motion:reduce){.mark,.track:after{animation-duration:4s}}
 </style>
 </head>
 <body>
-<div class="loading"><div class="spinner"></div><strong>載入剛體物理引擎</strong><div class="msg">T1 陀螺・發射點・角動量・X Dash</div></div>
+<div class="loading" role="status" aria-live="polite"><div class="mark"></div><div class="eyebrow">ARENA SYSTEM</div><strong>旋刃競技場</strong><div class="msg">正在校準戰鬥盤與陀螺動態特效</div><div class="track"></div></div>
 <script>
 (async()=>{
- const snapshot='https://raw.githubusercontent.com/xieyaozhong/LITTLE-GAME_spinwheel/f87bd6ff9020b1e0e7bb3723da7d372226b92999/battle-top-simulator/index.html';
- const response=await fetch(snapshot,{cache:'no-store'});
- if(!response.ok)throw new Error(`視覺快照載入失敗：${response.status}`);
+ const response=await fetch('snapshot-index.html',{cache:'no-store'});
+ if(!response.ok)throw new Error(`載入競技場失敗（${response.status}）`);
  let html=await response.text();
- const scripts='<scr'+'ipt src="physics-core.js?v=10"></scr'+'ipt><scr'+'ipt src="presets-launch.js?v=10"></scr'+'ipt><scr'+'ipt src="physics-runtime.js?v=10"></scr'+'ipt><scr'+'ipt src="rod-breaker.js?v=10"></scr'+'ipt><scr'+'ipt src="wooden-top-counter.js?v=10"></scr'+'ipt><scr'+'ipt src="preset-zh-tw.js?v=10"></scr'+'ipt><scr'+'ipt src="split-top.js?v=2"></scr'+'ipt><scr'+'ipt src="twin-survivor.js?v=1"></scr'+'ipt><scr'+'ipt src="sky-pouncer.js?v=2"></scr'+'ipt><scr'+'ipt src="sky-pouncer-endurance.js?v=2"></scr'+'ipt><scr'+'ipt src="phase-cloak.js?v=1"></scr'+'ipt><scr'+'ipt src="charm-siren.js?v=2"></scr'+'ipt><scr'+'ipt src="twin-charm-betrayal.js?v=1"></scr'+'ipt><scr'+'ipt src="rage-berserker.js?v=2"></scr'+'ipt><scr'+'ipt src="rage-targeting.js?v=3"></scr'+'ipt><scr'+'ipt src="rage-counterplay-fix.js?v=1"></scr'+'ipt><scr'+'ipt src="adaptive-morph.js?v=3"></scr'+'ipt><scr'+'ipt src="rage-disassembly.js?v=2"></scr'+'ipt><scr'+'ipt src="omni-observer-activate.js?v=1"></scr'+'ipt><scr'+'ipt src="taiji-mystic-wheel-v2.js?v=20260720a"></scr'+'ipt><scr'+'ipt src="taiji-rotation-visual.js?v=20260720c"></scr'+'ipt><scr'+'ipt src="taiji-center-gravity-fix.js?v=20260720b"></scr'+'ipt><scr'+'ipt src="seven-sword-master.js?v=2"></scr'+'ipt><scr'+'ipt src="seven-sword-refinement.js?v=1"></scr'+'ipt><scr'+'ipt src="seven-sword-speed-cap.js?v=1"></scr'+'ipt><scr'+'ipt src="chrono-clock-emperor.js?v=2"></scr'+'ipt><scr'+'ipt src="chrono-name-override.js?v=2"></scr'+'ipt><scr'+'ipt src="combat-clash-system.js?v=1"></scr'+'ipt><scr'+'ipt src="sky-pouncer-stamina-loss-fix.js?v=2"></scr'+'ipt><scr'+'ipt src="worldpress-colossus.js?v=1"></scr'+'ipt><scr'+'ipt src="worldpress-quake.js?v=3"></scr'+'ipt><scr'+'ipt src="relay-battle-mode.js?v=2"></scr'+'ipt><scr'+'ipt src="relay-lineup-layout.js?v=2"></scr'+'ipt><scr'+'ipt src="relay-team-synergy.js?v=2"></scr'+'ipt><scr'+'ipt src="relay-bond-visual-enhancement.js?v=2"></scr'+'ipt><scr'+'ipt src="ui-cleanup.js?v=2"></scr'+'ipt>';
- html=html.replace('</body>',scripts+'</body>');
+ const styles='<link rel="stylesheet" href="interface-v3.css?v=1">';
+ const scripts='<scr'+'ipt src="physics-core.js?v=10"></scr'+'ipt><scr'+'ipt src="presets-launch.js?v=10"></scr'+'ipt><scr'+'ipt src="physics-runtime.js?v=10"></scr'+'ipt><scr'+'ipt src="rod-breaker.js?v=10"></scr'+'ipt><scr'+'ipt src="wooden-top-counter.js?v=10"></scr'+'ipt><scr'+'ipt src="preset-zh-tw.js?v=10"></scr'+'ipt><scr'+'ipt src="split-top.js?v=2"></scr'+'ipt><scr'+'ipt src="twin-survivor.js?v=1"></scr'+'ipt><scr'+'ipt src="sky-pouncer.js?v=2"></scr'+'ipt><scr'+'ipt src="sky-pouncer-endurance.js?v=2"></scr'+'ipt><scr'+'ipt src="phase-cloak.js?v=1"></scr'+'ipt><scr'+'ipt src="charm-siren.js?v=2"></scr'+'ipt><scr'+'ipt src="twin-charm-betrayal.js?v=1"></scr'+'ipt><scr'+'ipt src="rage-berserker.js?v=2"></scr'+'ipt><scr'+'ipt src="rage-targeting.js?v=3"></scr'+'ipt><scr'+'ipt src="rage-counterplay-fix.js?v=1"></scr'+'ipt><scr'+'ipt src="adaptive-morph.js?v=3"></scr'+'ipt><scr'+'ipt src="rage-disassembly.js?v=2"></scr'+'ipt><scr'+'ipt src="omni-observer-activate.js?v=1"></scr'+'ipt><scr'+'ipt src="taiji-mystic-wheel-v2.js?v=20260720a"></scr'+'ipt><scr'+'ipt src="taiji-rotation-visual.js?v=20260720c"></scr'+'ipt><scr'+'ipt src="taiji-center-gravity-fix.js?v=20260720b"></scr'+'ipt><scr'+'ipt src="seven-sword-master.js?v=2"></scr'+'ipt><scr'+'ipt src="seven-sword-refinement.js?v=1"></scr'+'ipt><scr'+'ipt src="seven-sword-speed-cap.js?v=1"></scr'+'ipt><scr'+'ipt src="chrono-clock-emperor.js?v=2"></scr'+'ipt><scr'+'ipt src="chrono-name-override.js?v=2"></scr'+'ipt><scr'+'ipt src="combat-clash-system.js?v=1"></scr'+'ipt><scr'+'ipt src="sky-pouncer-stamina-loss-fix.js?v=2"></scr'+'ipt><scr'+'ipt src="worldpress-colossus.js?v=1"></scr'+'ipt><scr'+'ipt src="worldpress-quake.js?v=3"></scr'+'ipt><scr'+'ipt src="relay-battle-mode.js?v=2"></scr'+'ipt><scr'+'ipt src="relay-lineup-layout.js?v=2"></scr'+'ipt><scr'+'ipt src="relay-team-synergy.js?v=2"></scr'+'ipt><scr'+'ipt src="relay-bond-visual-enhancement.js?v=2"></scr'+'ipt><scr'+'ipt src="ui-cleanup.js?v=2"></scr'+'ipt><scr'+'ipt src="effects-v3.js?v=1"></scr'+'ipt><scr'+'ipt src="interface-v3.js?v=1"></scr'+'ipt>';
+ html=html.replace('</head>',styles+'</head>').replace('</body>',scripts+'</body>');
  document.open();document.write(html);document.close();
 })().catch(error=>{
- document.body.innerHTML='<div class="loading"><strong>載入失敗</strong><div class="msg"></div></div>';
  document.querySelector('.msg').textContent=error.message;
+ document.querySelector('.track').remove();
  console.error(error);
 });
 </script>
