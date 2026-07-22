@@ -1,120 +1,144 @@
-/* Worldpress Colossus FX V5 — tectonic anchors, collapsing plates, and segmented shock fronts. */
+/* Worldpress Colossus Physics FX V8 — restrained, mass-driven ground response. */
 (() => {
+  const TAU=Math.PI*2;
   const easeOut=t=>1-Math.pow(1-clamp(t,0,1),3);
 
-  function polygonPath(sides,r,rotation=0){
-    ctx.beginPath();
-    for(let i=0;i<sides;i++){
-      const a=rotation+i*Math.PI*2/sides,x=Math.cos(a)*r,y=Math.sin(a)*r;
-      i?ctx.lineTo(x,y):ctx.moveTo(x,y);
-    }
-    ctx.closePath();
+  function massScale(top){
+    const physical=Number(top.mass);
+    if(Number.isFinite(physical)&&physical>0)return clamp(Math.sqrt(physical/1.9),.82,1.42);
+    return clamp(.76+(Number(top.c?.w)||80)/250,.86,1.34);
   }
 
-  function segmentedPlate(sides,r,rotation,color,opacity,width){
-    ctx.strokeStyle=alpha(color,opacity);ctx.lineWidth=width;
-    for(let i=0;i<sides;i++){
-      const a=rotation+i*Math.PI*2/sides,b=rotation+(i+1)*Math.PI*2/sides;
-      const inset=.09;
+  function seeded(seed,index){
+    return Math.sin(seed*1.731+index*12.9898)*.5+.5;
+  }
+
+  function anchorBlock(angle,radius,size,color,opacity){
+    ctx.save();
+    try{
+      ctx.rotate(angle);ctx.translate(radius,0);
+      ctx.fillStyle=alpha(color,opacity);
       ctx.beginPath();
-      ctx.moveTo(Math.cos(a+inset)*r,Math.sin(a+inset)*r);
-      ctx.lineTo(Math.cos(b-inset)*r,Math.sin(b-inset)*r);
-      ctx.stroke();
+      ctx.moveTo(-size*.58,-size*.30);
+      ctx.lineTo(size*.24,-size*.42);
+      ctx.lineTo(size*.55,-size*.20);
+      ctx.lineTo(size*.55,size*.20);
+      ctx.lineTo(size*.24,size*.42);
+      ctx.lineTo(-size*.58,size*.30);
+      ctx.closePath();ctx.fill();
+    }finally{ctx.restore()}
+  }
+
+  function compressionEllipse(top,progress,pulse,flashPulse,scale){
+    const force=Math.max(progress,pulse*.72,flashPulse),base=outerR*(.14+progress*.07+pulse*.035)*scale;
+    if(force<=0)return;
+    const glow=ctx.createRadialGradient(0,0,top.r*.18,0,0,base);
+    glow.addColorStop(0,alpha('#fff3c4',.035+flashPulse*.15+force*.035));
+    glow.addColorStop(.34,alpha(top.c.accent,.06+force*.10));
+    glow.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=glow;
+    ctx.beginPath();ctx.ellipse(0,top.r*.20,base,base*(.28-progress*.055),0,0,TAU);ctx.fill();
+  }
+
+  function impactFront(top,pulse,seed,scale){
+    if(pulse<=0)return;
+    const travel=1-pulse,reach=outerR*(.10+easeOut(travel)*.72)*scale;
+    ctx.strokeStyle=alpha('#fff0b0',pulse*(.18+.18*scale));
+    ctx.lineWidth=1.4+pulse*2.4*scale;ctx.lineCap='round';
+    ctx.beginPath();ctx.ellipse(0,0,reach,reach*(.56+.04*scale),seed*.11,0,TAU);ctx.stroke();
+  }
+
+  function impactDebris(top,pulse,seed,scale){
+    if(pulse<=0)return;
+    const travel=1-pulse;
+    for(let i=0;i<5;i++){
+      const drift=(seeded(seed,i)-.5)*.22,a=seed+i*TAU/5+drift;
+      const delay=i*.018,local=clamp(travel-delay,0,1),radius=outerR*(.10+easeOut(local)*(.47+.08*seeded(seed,i+7)))*scale;
+      const size=outerR*(.015+.008*seeded(seed,i+13))*scale*(.72+pulse*.28);
+      ctx.save();
+      try{
+        ctx.rotate(a);ctx.translate(radius,0);ctx.rotate(a*.37+local*1.4*(i%2?1:-1));
+        ctx.fillStyle=alpha(i%2?top.c.primary:top.c.accent,pulse*(.13+.16*scale));
+        ctx.beginPath();ctx.moveTo(-size*.72,-size*.36);ctx.lineTo(size*.54,-size*.50);ctx.lineTo(size*.82,size*.18);ctx.lineTo(-size*.35,size*.56);ctx.closePath();ctx.fill();
+      }finally{ctx.restore()}
     }
   }
 
-  function drawAnchor(angle,radius,size,color,power){
-    ctx.save();ctx.rotate(angle);ctx.translate(radius,0);ctx.rotate(Math.PI/2);
-    ctx.fillStyle=alpha(color,.035+power*.10);ctx.strokeStyle=alpha(color,.22+power*.50);ctx.lineWidth=1.1+power*2;ctx.shadowBlur=10+power*14;ctx.shadowColor=color;
-    ctx.beginPath();ctx.moveTo(-size*.46,-size*.26);ctx.lineTo(-size*.18,-size*.52);ctx.lineTo(size*.42,-size*.34);ctx.lineTo(size*.58,0);ctx.lineTo(size*.42,size*.34);ctx.lineTo(-size*.18,size*.52);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.beginPath();ctx.moveTo(-size*.10,-size*.26);ctx.lineTo(size*.32,0);ctx.lineTo(-size*.10,size*.26);ctx.stroke();ctx.restore();
-  }
-
-  function drawFaults(top,strength,reach){
-    if(strength<=0)return;
-    const rotation=top.colossusQuakeSeed||0;
-    ctx.save();ctx.translate(W/2,H/2);ctx.globalCompositeOperation='screen';ctx.lineCap='round';
-    for(let i=0;i<10;i++){
-      const a=rotation+i*Math.PI/5,start=outerR*.13,end=outerR*(.30+reach*.64);
+  function impactCracks(top,pulse,seed,scale){
+    if(pulse<=0)return;
+    const travel=1-pulse,start=top.r*.82,end=outerR*(.13+easeOut(travel)*.25)*scale;
+    ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=1.6+pulse*2.6*scale;
+    for(let i=0;i<3;i++){
+      const a=seed+i*TAU/3+(seeded(seed,i+21)-.5)*.26;
+      const bend=(seeded(seed,i+27)-.5)*outerR*.032;
+      const mid=start+(end-start)*.54;
+      ctx.strokeStyle=alpha(i===0?'#fff1bd':i===1?top.c.accent:top.c.primary,pulse*(.14+.14*scale));
       ctx.beginPath();ctx.moveTo(Math.cos(a)*start,Math.sin(a)*start);
-      for(let p=1;p<=4;p++){
-        const t=p/4,rr=start+(end-start)*t,wob=Math.sin((i+1)*(p+2)*2.17+rotation)*outerR*(.012+.012*t);
-        ctx.lineTo(Math.cos(a)*rr-Math.sin(a)*wob,Math.sin(a)*rr+Math.cos(a)*wob);
-      }
-      ctx.strokeStyle=alpha(i%3===0?'#fff0b0':i%2?top.c.primary:top.c.accent,.08+strength*.34);ctx.lineWidth=.8+strength*2.4;ctx.shadowBlur=8+strength*15;ctx.shadowColor=i%2?top.c.primary:top.c.accent;ctx.stroke();
+      ctx.lineTo(Math.cos(a)*mid-Math.sin(a)*bend,Math.sin(a)*mid+Math.cos(a)*bend);
+      ctx.lineTo(Math.cos(a)*end+Math.sin(a)*bend*.35,Math.sin(a)*end-Math.cos(a)*bend*.35);ctx.stroke();
     }
-    ctx.restore();
   }
 
-  function drawTectonicField(top,windup,pulse,aftershock,flashPulse){
-    const charging=windup>0,progress=charging?1-clamp(windup/1.06,0,1):0,impact=1-pulse;
-    const cx=W/2,cy=H/2,rotation=top.colossusQuakeSeed||0;
-    ctx.save();ctx.translate(cx,cy);ctx.globalCompositeOperation='screen';ctx.lineJoin='round';
+  function aftershockFront(top,aftershock,seed,scale){
+    if(aftershock<=0)return;
+    const travel=1-aftershock,reach=outerR*(.22+easeOut(travel)*.64)*scale;
+    ctx.strokeStyle=alpha(top.c.primary,aftershock*.13);ctx.lineWidth=1+aftershock*1.4*scale;
+    ctx.beginPath();ctx.ellipse(0,0,reach,reach*.58,seed*.11,0,TAU);ctx.stroke();
+  }
 
-    if(charging){
-      const gravity=ctx.createRadialGradient(0,0,outerR*.04,0,0,outerR*1.05);
-      gravity.addColorStop(0,alpha(top.c.secondary,.17+progress*.16));gravity.addColorStop(.45,alpha(top.c.primary,.035+progress*.07));gravity.addColorStop(1,'rgba(0,0,0,0)');
-      ctx.fillStyle=gravity;ctx.beginPath();ctx.arc(0,0,outerR*1.05,0,Math.PI*2);ctx.fill();
+  function drawGround(top,windup,pulse,aftershock,flashPulse){
+    const charging=windup>0,progress=charging?1-clamp(windup/1.06,0,1):0,scale=massScale(top),seed=Number(top.colossusQuakeSeed)||0;
+    ctx.save();
+    try{
+      ctx.translate(top.x,top.y);ctx.globalCompositeOperation='screen';
+      compressionEllipse(top,progress,pulse,flashPulse,scale);
+      if(charging){
+        const radius=outerR*(.38-progress*.15)*scale,size=outerR*(.055+progress*.012)*scale;
+        for(let i=0;i<4;i++)anchorBlock(seed+i*Math.PI/2,radius,size,i%2?top.c.primary:top.c.accent,.10+progress*.25);
+      }
+      impactFront(top,pulse,seed,scale);
+      impactDebris(top,pulse,seed,scale);
+      impactCracks(top,pulse,seed,scale);
+      aftershockFront(top,aftershock,seed,scale);
+    }finally{ctx.restore()}
+  }
 
-      for(let layer=0;layer<3;layer++){
-        const phase=clamp(progress-layer*.10,0,1),radius=outerR*(.91-phase*(.20+layer*.035));
-        segmentedPlate(8,radius,rotation+layer*Math.PI/8,layer===1?'#fff0b0':layer===2?top.c.primary:top.c.accent,.10+phase*.42,1.2+phase*3.2);
-      }
-      for(let i=0;i<4;i++)drawAnchor(rotation+i*Math.PI/2,outerR*(.78-progress*.12),outerR*.105,top.c.accent,progress);
-    }
-
-    if(pulse>0){
-      for(let layer=0;layer<3;layer++){
-        const local=clamp(impact-layer*.10,0,1);if(local<=0)continue;
-        const radius=outerR*(.12+easeOut(local)*(.94+layer*.035));
-        segmentedPlate(8,radius,rotation+layer*Math.PI/8,layer===0?'#fff8d8':layer===1?top.c.accent:top.c.primary,.11+pulse*(.50-layer*.07),1.4+pulse*(5.4-layer*.8));
-      }
-      for(let i=0;i<12;i++){
-        const a=rotation+i*Math.PI/6,local=clamp(impact-(i%3)*.035,0,1),rr=outerR*(.18+easeOut(local)*.68),size=outerR*(.022+pulse*.018);
-        ctx.save();ctx.rotate(a);ctx.translate(rr,0);ctx.rotate(a+Math.PI/4);ctx.fillStyle=alpha(i%2?top.c.primary:top.c.accent,.05+pulse*.16);ctx.strokeStyle=alpha(i%3===0?'#fff0b4':top.c.accent,.12+pulse*.34);ctx.lineWidth=1+pulse*1.8;polygonPath(4,size);ctx.fill();ctx.stroke();ctx.restore();
-      }
-    }
-
-    if(aftershock>0){
-      const travel=1-aftershock;
-      ctx.lineCap='round';
-      for(let i=0;i<4;i++){
-        const radius=outerR*(.28+travel*.64+i*.012);ctx.strokeStyle=alpha(i%2?top.c.primary:'#ffe8a0',aftershock*.20);ctx.lineWidth=1+aftershock*2.2;
-        ctx.beginPath();ctx.arc(0,0,radius,rotation+i*Math.PI/2+.12,rotation+i*Math.PI/2+1.08);ctx.stroke();
-      }
-    }
-    if(flashPulse>0){
-      ctx.fillStyle=alpha('#fff4c8',flashPulse*.11);polygonPath(8,outerR*(.18+(1-flashPulse)*.18),rotation);ctx.fill();
-    }
-    ctx.restore();
-    drawFaults(top,Math.max(progress*.58,pulse),pulse>0?1:progress*.48);
-
-    if(charging){
-      ctx.save();ctx.translate(top.x,top.y);ctx.globalCompositeOperation='screen';ctx.rotate(rotation-time*.16);
-      ctx.strokeStyle=alpha('#fff0b0',.22+progress*.56);ctx.lineWidth=1.2+progress*2.8;ctx.shadowBlur=14+progress*22;ctx.shadowColor=top.c.primary;
-      for(let i=0;i<4;i++){
-        const a=i*Math.PI/2;ctx.save();ctx.rotate(a);ctx.beginPath();ctx.moveTo(top.r*.72,-top.r*.34);ctx.lineTo(top.r*(1.42-progress*.20),-top.r*.18);ctx.lineTo(top.r*(1.42-progress*.20),top.r*.18);ctx.lineTo(top.r*.72,top.r*.34);ctx.stroke();ctx.restore();
-      }
-      segmentedPlate(8,top.r*(1.28-progress*.12),0,top.c.accent,.22+progress*.48,1.2+progress*2.6);ctx.restore();
-    }
+  function drawBodyCue(top,windup,pulse,flashPulse){
+    const charging=windup>0,progress=charging?1-clamp(windup/1.06,0,1):0,force=Math.max(progress,pulse*.68,flashPulse*.8);
+    if(force<=0)return;
+    const scale=massScale(top),seed=Number(top.colossusQuakeSeed)||0,r=top.r;
+    ctx.save();
+    try{
+      ctx.translate(top.x,top.y);ctx.globalCompositeOperation='screen';
+      ctx.fillStyle=alpha(top.c.secondary,.06+force*.13);
+      ctx.beginPath();ctx.ellipse(0,r*.42,r*(1.20+.18*scale),r*(.22+.035*scale),0,0,TAU);ctx.fill();
+      const radius=r*(1.13-force*.12),size=r*(.31+.035*scale);
+      for(let i=0;i<4;i++)anchorBlock(seed+i*Math.PI/2,radius,size,i%2?top.c.primary:'#fff0b0',.12+force*.34);
+    }finally{ctx.restore()}
   }
 
   const PreviousTop=Top;
   Top=class Top extends PreviousTop{
     draw(){
       const isColossus=!!this.c?.juggernautEngine&&!this.out&&!this.burst;
-      const windup=this.colossusQuakeWindup||0,pulse=clamp(this.colossusQuakePulse||0,0,1),aftershock=clamp(this.colossusQuakeAftershock||0,0,1),flashPulse=clamp(this.colossusQuakeFlash||0,0,1);
+      const windup=Math.max(0,Number(this.colossusQuakeWindup)||0);
+      const pulse=clamp(Number(this.colossusQuakePulse)||0,0,1);
+      const aftershock=clamp(Number(this.colossusQuakeAftershock)||0,0,1);
+      const flashPulse=clamp(Number(this.colossusQuakeFlash)||0,0,1);
       const engaged=isColossus&&(windup>0||pulse>0||aftershock>0||flashPulse>0);
       if(!engaged){super.draw();return}
 
       const pressure=this.colossusPressurePulse||0;
       this.colossusQuakeWindup=0;this.colossusQuakePulse=0;this.colossusQuakeAftershock=0;this.colossusQuakeFlash=0;this.colossusPressurePulse=0;
-      try{super.draw()}finally{
+      try{
+        drawGround(this,windup,pulse,aftershock,flashPulse);
+        super.draw();
+        drawBodyCue(this,windup,pulse,flashPulse);
+      }finally{
         this.colossusQuakeWindup=windup;this.colossusQuakePulse=pulse;this.colossusQuakeAftershock=aftershock;this.colossusQuakeFlash=flashPulse;this.colossusPressurePulse=pressure;
       }
-      drawTectonicField(this,windup,pulse,aftershock,flashPulse);
     }
   };
 
-  document.documentElement.dataset.colossusFx='tectonic-v5';
+  document.documentElement.dataset.colossusFx='physics-v8';
 })();
